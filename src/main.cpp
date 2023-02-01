@@ -1,4 +1,7 @@
 #include "main.h"
+#include "navX.h"
+#include "AMT21.h"
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -75,18 +78,45 @@ void autonomous() {}
  */
 void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
+    navX navx(13);
+    bool foo = true;
+    AMT21 amt21_left(19, 0x58);
+    AMT21 amt21_right(19, 0x5C);
+    AMT21 amt21_middle(19, 0x54);
+    pros::delay(20);
+    uint64_t startTime = 0;
+    while(true){
+        pros::delay(10);
+        startTime = pros::micros();
+        /*int position_left = amt21_left.get_position();
+        //while(pros::micros() -startTime < 1000)
+        //pros::delay(1);
+        int turns_left = amt21_left.get_turns();
+        //while(pros::micros() -startTime < 2000);
+        //pros::delay(1);
+        int position_right = amt21_right.get_position();
+        //while(pros::micros() -startTime < 3000);
+        //pros::delay(1);
+        int turns_right = amt21_right.get_turns();
+        //pros::delay(1);
+        //while(pros::micros() -startTime < 4000);
+        int position_middle = amt21_middle.get_position();
+        //while(pros::micros() -startTime < 5000);
+        int turns_middle = amt21_middle.get_turns();
+        //while(pros::micros() -startTime < 6000);*/
 
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
+        /*pros::lcd::print(0, "AMT21_left position: %d", position_left);
+        pros::lcd::print(1, "AMT21_left turns: %d", turns_left);
+        pros::lcd::print(2, "AMT21_right position: %d", position_right);
+        pros::lcd::print(3, "AMT21_right turns: %d", turns_right);
+        pros::lcd::print(4, "AMT21_middle position: %d", position_middle);
+        pros::lcd::print(5, "AMT21_middle turns: %d", turns_middle);*/
 
-		left_mtr = left;
-		right_mtr = right;
-		pros::delay(20);
-	}
+        pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
+        pros::lcd::print(2, "AMT21_right value: %d", amt21_right.get_value());
+        pros::lcd::print(4, "AMT21_middle value: %d", amt21_middle.get_value());
+
+        pros::lcd::print(6, "Response time: %ld micros", pros::micros() - startTime);
+        pros::lcd::print(7, "heading: %f", navx.getHeading());
+    }
 }
