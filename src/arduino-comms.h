@@ -4,7 +4,8 @@
 
 #ifndef VEXU_2022_2023_TESTBED_ARDUINO_COMMS_H
 #define VEXU_2022_2023_TESTBED_ARDUINO_COMMS_H
-#include "main.h"
+//#include "main.h"
+#include "pros/apix.h"
 #include "proto/messages.pb.h"
 #include "cobs/cobs.h"
 class Arduino{
