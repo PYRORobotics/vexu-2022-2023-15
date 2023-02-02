@@ -6,7 +6,7 @@
 
 #define DELAY_TIME 500
 
-AMT21::AMT21(int port, uint8_t address) : serial_port(port), address(address){
+AMT21::AMT21(int port, uint8_t address, bool reversed) : serial_port(port), address(address), reversed(reversed){
     //default baud for our model is 115200
     serial_port.set_baudrate(115200);
 
@@ -93,7 +93,7 @@ long AMT21::get_value(){
     }
     last_value = (turns * 16384) + position + offset;
 
-    return last_value;
+    return last_value * (reversed ? -1 : 1);
 }
 
 void AMT21::reset(){
