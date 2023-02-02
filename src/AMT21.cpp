@@ -4,7 +4,7 @@
 
 #include "AMT21.h"
 
-#define DELAY_TIME 2000
+#define DELAY_TIME 500
 
 AMT21::AMT21(int port, uint8_t address) : serial_port(port), address(address){
     //default baud for our model is 115200
@@ -23,6 +23,9 @@ uint16_t AMT21::get_position() {
     uint64_t startTime = pros::micros();
     while(pros::micros() -startTime < DELAY_TIME);
     uint8_t buf[2];
+    while(serial_port.get_read_avail() > 2){
+        serial_port.read(buf, 1);
+    }
     serial_port.read( buf, 2);
     uint16_t value = (buf[0]) + ((buf[1] & 0b00111111) << 8);
     if(serial_port.get_read_avail() > 0){
@@ -47,6 +50,9 @@ int16_t AMT21::get_turns() {
     uint64_t startTime = pros::micros();
     while(pros::micros() -startTime < DELAY_TIME);
     uint8_t buf[2];
+    while(serial_port.get_read_avail() > 2){
+        serial_port.read(buf, 1);
+    }
     serial_port.read(buf, 2);
     int16_t value = (int16_t)(((buf[0]) + ((buf[1] & 0b00111111) << 8)) << 2)/4;
 

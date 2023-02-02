@@ -80,9 +80,9 @@ void opcontrol() {
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
     navX navx(13);
     bool foo = true;
-    AMT21 amt21_left(19, 0x58);
+    AMT21 amt21_left(18, 0x58);
     AMT21 amt21_right(19, 0x5C);
-    AMT21 amt21_middle(19, 0x54);
+    AMT21 amt21_middle(20, 0x54);
     pros::delay(20);
     uint64_t startTime = 0;
     while(true){
