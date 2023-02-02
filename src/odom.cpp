@@ -7,8 +7,6 @@
 using namespace okapi::literals;
 odom::odom() {
     printf("Odom Initialized");
-    xPosition = 0_in;
-    yPosition = 0_in;
     position = Cartesian(0_in, 0_in);
     previousRelativeY = up.get_value()*RLCONV;
     previousRelativeX = sideways.get_value()*YCONV;
@@ -37,7 +35,7 @@ void odom::resetOdom() {
 //     previousInert = imu1.get_heading()*1_rad;
 // }
 void::odom::updateOdom() {
-    yRelativeDelta = (up.get_value())*RLCONV-previousRelativeY;
+    yRelativeDelta = (up.get_value())*RLCONV - previousRelativeY;
     xRelativeDelta = sideways.get_value()*YCONV - previousRelativeX;
     //robot relative
     Polar delta = Polar(xRelativeDelta,yRelativeDelta);

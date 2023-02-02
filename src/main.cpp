@@ -86,6 +86,9 @@ void initialize() {
     up.reset();
     sideways.reset();
 	//
+	pros::delay(100);
+	up.reset();
+	sideways.reset();
 
 }
 
@@ -176,6 +179,9 @@ double normRightY() {
 
 float diagnosticTimer;
 void opcontrol() {
+	//pros::delay(100);
+	//up.reset();
+	//sideways.reset();
 	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(0.0)) , robotPose(Cartesian(12.0, 120.0) , okapi::QAngle(180.0)) , robotPose(Cartesian(24.0,0.0) , okapi::QAngle(180.0)) , 190);
 	int progress = 0;
 	RobotControl robot1;
@@ -241,14 +247,14 @@ void opcontrol() {
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 			//intake.move(12);
 			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
-				robot1.goTo(odom1 , (*Deez));
+				robot1.goTo(odom1 , (*Deez), 8);
 			}
+		}
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+			robot1.goTo(odom1 , Test.at(130), 8);
 		}
 		// drive11();
 		
 	pros::delay(20);
 	}
 }
-
-
-

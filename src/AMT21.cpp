@@ -4,7 +4,7 @@
 
 #include "AMT21.h"
 
-#define DELAY_TIME 500
+#define DELAY_TIME 1000
 
 AMT21::AMT21(int port, uint8_t address, bool reversed) : serial_port(port), address(address), reversed(reversed){
     //default baud for our model is 115200
@@ -84,20 +84,21 @@ bool AMT21::validate_response(uint16_t value) {
     return parity == calculated_parity;
 }
 
-long AMT21::get_value(){
+long AMT21::get_value(bool withOffset){
     int turns = get_turns();
     int position = get_position();
 
     if(turns == AMT21_INVALID || position == AMT21_INVALID){
         return last_value;
     }
-    last_value = (turns * 16384) + position + offset;
+    last_value = (turns * 16384) + position + (withOffset ? offset : 0);
 
-    return last_value * (reversed ? -1 : 1);
+    return last_value * ((reversed && withOffset) ? -1 : 1);
 }
 
 void AMT21::reset(){
-    offset = -get_value();
+    offset = -get_value(false);
+    printf("new offset value: %d\n", offset);
 }
 
 

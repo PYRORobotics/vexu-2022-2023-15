@@ -11,10 +11,7 @@ class odom{
     private:
     #define RLCONV 0.00037339_in
     #define YCONV 0.00037339_in
-
     okapi::QLength rightConversion;
-    okapi::QLength xPosition;
-    okapi::QLength yPosition;
     okapi::QLength xRelativeDelta;
     okapi::QLength yRelativeDelta;
     okapi::QLength previousRelativeX;
@@ -27,7 +24,6 @@ class odom{
     Cartesian position;
     void resetOdom();
     void updateOdom();
-    double heading();
     okapi::QLength getX_position();
     okapi::QLength getY_position();
     void printOdom();
