@@ -176,8 +176,6 @@ void opcontrol() {
 	int progress = 0;
 	RobotControl robot1;
 	//AMT21 amt21_left(19, 0x58);
-    AMT21 amt21_right(19, 0x5C);
-    AMT21 amt21_middle(19, 0x54);
 	imu1.reset();
 	while(imu1.is_calibrating()==true) {
 		pros::delay(20);
@@ -190,8 +188,8 @@ void opcontrol() {
 	pros::Motor intake ();
 	while (true) {
 		//pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
-        pros::lcd::print(2, "AMT21_right value: %d", amt21_right.get_value());
-        pros::lcd::print(4, "AMT21_middle value: %d", amt21_middle.get_value());
+        pros::lcd::print(2, "AMT21_right value: %d", up.get_value());
+        pros::lcd::print(4, "AMT21_middle value: %d", sideways.get_value());
         //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
         //pros::lcd::print(7, "heading: %f", navx.getHeading());
 		odom1.updateOdom();

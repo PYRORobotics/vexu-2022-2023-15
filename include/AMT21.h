@@ -18,7 +18,7 @@
 
 class AMT21 {
 public:
-    AMT21(int port, uint8_t address);
+    AMT21(int port, uint8_t address, bool reversed = false);
 
     uint16_t get_position();
     uint16_t get_position_safe();
@@ -35,6 +35,7 @@ private:
     pros::Serial serial_port;
     long offset = 0;
     long last_value = 0;
+    bool reversed;
 
 };
 
