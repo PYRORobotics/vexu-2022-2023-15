@@ -71,13 +71,9 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 		timer = pros::millis();
 	}
 }
-
-void RobotControl::goTo(Cartesian Cartiesian) {
-	
-}
 //auton p looper, goes to position given and faces the bot tword heading
 void RobotControl::goTo(odom odom1, robotPose robotPose) {
-	Cartesian bot_pos(odom1.getX_position(), odom1.getY_position());
+	Cartesian bot_pos(odom1.getX_position() , odom1.getY_position());
 	Polar to_Polar(robotPose.position.x - bot_pos.x, (robotPose.position.y - bot_pos.y));
 	Cartesian to_Cartesian(to_Polar);
 	double drivePow;
@@ -90,4 +86,7 @@ void RobotControl::goTo(odom odom1, robotPose robotPose) {
 		this->headingStrafe(odom1.position.getHeading()+180_deg, drivePow, robotPose.heading * (1 - progress));
 		progress = progress * 0.8;
 	}
+}
+void RobotControl::goTo(Cartesian cartesian){
+
 }

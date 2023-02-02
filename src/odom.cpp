@@ -60,3 +60,11 @@ void odom::printOdom() {
     printf("Ypos: %f\n", this->position.y.convert(okapi::inch));
     printf("------------------------------------------------------------------------------------------------------\n");
 }
+
+okapi::QLength odom::getX_position() {
+    return position.x;
+}
+
+okapi::QLength odom::getY_position() {
+    return position.y;
+}

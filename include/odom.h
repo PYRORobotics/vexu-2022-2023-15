@@ -9,8 +9,8 @@ class Cartesian;
 
 class odom{
     private:
-    #define RLCONV 0.01_in
-    #define YCONV 0.01_in
+    #define RLCONV 0.00037339_in
+    #define YCONV 0.00037339_in
 
     okapi::QLength rightConversion;
     okapi::QLength xPosition;
@@ -28,8 +28,8 @@ class odom{
     void resetOdom();
     void updateOdom();
     double heading();
-    double getX_position();
-    double getY_position();
+    okapi::QLength getX_position();
+    okapi::QLength getY_position();
     void printOdom();
 };
 
