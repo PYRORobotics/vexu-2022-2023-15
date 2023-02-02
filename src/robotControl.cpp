@@ -71,7 +71,7 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 		timer = pros::millis();
 	}
 }
-//auton p looper, goes to position given and faces the bot tword heading
+//auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
 void RobotControl::goTo(odom odom1, robotPose robotPose, uint8_t follow_Dist) {
 	Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
 	Polar to_Polar(robotPose.position.x - current_pos.x, robotPose.position.y - current_pos.y);
@@ -83,10 +83,33 @@ void RobotControl::goTo(odom odom1, robotPose robotPose, uint8_t follow_Dist) {
 		if (drivePow>100) {
 			drivePow = 100;
 		}
-		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3, (robotPose.heading * (1 - progress))+180_deg);
+		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3, (robotPose.heading * (1 - progress)));
 		progress = progress * 0.8;
 	}
 }
-void RobotControl::goTo(Cartesian cartesian){
-
+//auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
+void RobotControl::goTo(odom odom1, Cartesian to_Cartesian, okapi::QAngle robotFacing, uint8_t follow_Dist) {
+	Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
+	Polar to_Polar(to_Cartesian);
+	double drivePow;
+	while(sqrt((to_Cartesian.x * to_Cartesian.x) + (to_Cartesian.y * to_Cartesian.y)) >= (follow_Dist * 1_in)) {
+		drivePow = to_Polar.magnitude.convert(okapi::inch)*30;
+		if (drivePow>100) {
+			drivePow = 100;
+		}
+		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3 , robotFacing);
+	}
+}
+//auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
+void RobotControl::goTo(odom odom1, Cartesian to_Cartesian, uint8_t follow_Dist) {
+	Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
+	Polar to_Polar(to_Cartesian);
+	double drivePow;
+	while(sqrt((to_Cartesian.x * to_Cartesian.x) + (to_Cartesian.y * to_Cartesian.y)) >= (follow_Dist * 1_in)) {
+		drivePow = to_Polar.magnitude.convert(okapi::inch)*30;
+		if (drivePow>100) {
+			drivePow = 100;
+		}
+		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3 , 0_rad);
+	}
 }
