@@ -13,7 +13,7 @@
 #define AMT21_EXTENDED_SET_ZERO 0x5E
 #define AMT21_EXTENDED_RESET 0x75
 
-#define AMT21_INVALID (-1)
+#define AMT21_INVALID (30000)
 
 
 class AMT21 {
@@ -26,7 +26,7 @@ public:
     int16_t get_turns();
     int16_t get_turns_safe();
 
-    long get_value();
+    long get_value(bool withOffset = true);
     void reset();
 
 private:

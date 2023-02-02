@@ -82,6 +82,9 @@ void initialize() {
 
 	pros::lcd::register_btn1_cb(on_center_button);
 	//
+	pros::delay(100);
+	up.reset();
+	sideways.reset();
 
 }
 
@@ -172,6 +175,9 @@ double normRightY() {
 
 float diagnosticTimer;
 void opcontrol() {
+	//pros::delay(100);
+	//up.reset();
+	//sideways.reset();
 	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(0.0)) , robotPose(Cartesian(12.0, 120.0) , okapi::QAngle(180.0)) , robotPose(Cartesian(24.0,0.0) , okapi::QAngle(180.0)) , 190);
 	int progress = 0;
 	RobotControl robot1;
