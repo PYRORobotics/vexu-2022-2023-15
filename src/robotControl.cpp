@@ -1,5 +1,5 @@
 #include "main.h"
-#include "robotControl.h"
+#include "proto/robotControl.h"
 #include "okapi/api/units/QAngle.hpp"
 using namespace okapi::literals;
 

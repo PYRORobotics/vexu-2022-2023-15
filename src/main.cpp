@@ -4,7 +4,7 @@
 #include "okapi/impl/device/rotarysensor/IMU.hpp"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
-#include "robotControl.h"
+#include "proto/robotControl.h"
 #include "cartesian.h"
 #include "polar.h"
 #include "odom.h"
@@ -77,6 +77,7 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    printf("eneterd initialize.\n");
 		pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
@@ -195,7 +196,7 @@ void opcontrol() {
 	okapi::QAngle robotHeading = 0_rad;
 	odom odom1 = odom();
 	double drivePow=0;
-	pros::Motor intake ();
+	//pros::Motor intake ();
 	while (true) {
 		//pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
         pros::lcd::print(2, "AMT21_right value: %d", up.get_value());

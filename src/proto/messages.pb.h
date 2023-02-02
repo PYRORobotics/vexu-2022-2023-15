@@ -3,9 +3,9 @@
 
 #ifndef PB_MESSAGES_PB_H_INCLUDED
 #define PB_MESSAGES_PB_H_INCLUDED
-#include "../Nanopb/pb.h"
-#include "../Nanopb/pb_encode.h"
-#include "../Nanopb/pb_decode.h"
+#include "nanopb/pb.h"
+#include "nanopb/pb_encode.h"
+#include "nanopb/pb_decode.h"
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
