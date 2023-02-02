@@ -1,5 +1,5 @@
 #include "main.h"
-#include "arduino-comms.h"
+#include "../src/arduino-comms.h"
 
 class navX{
     public:
