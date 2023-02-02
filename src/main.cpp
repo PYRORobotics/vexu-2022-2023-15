@@ -243,8 +243,11 @@ void opcontrol() {
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 			//intake.move(12);
 			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
-				robot1.goTo(odom1 , (*Deez));
+				robot1.goTo(odom1 , (*Deez), 8);
 			}
+		}
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+			robot1.goTo(odom1 , Test.at(130), 8);
 		}
 		// drive11();
 		

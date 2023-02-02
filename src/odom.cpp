@@ -37,7 +37,7 @@ void odom::resetOdom() {
 //     previousInert = imu1.get_heading()*1_rad;
 // }
 void::odom::updateOdom() {
-    yRelativeDelta = (up.get_value())*RLCONV-previousRelativeY;
+    yRelativeDelta = (up.get_value())*RLCONV - previousRelativeY;
     xRelativeDelta = sideways.get_value()*YCONV - previousRelativeX;
     //robot relative
     Polar delta = Polar(xRelativeDelta,yRelativeDelta);

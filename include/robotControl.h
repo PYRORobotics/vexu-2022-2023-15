@@ -14,6 +14,6 @@ class RobotControl{
     constexpr static const float powerMod = 0.3;
     double timer;
     void goTo(Cartesian to_Cartiesian);
-    void goTo(odom odom1, robotPose to_robotPose);
+    void goTo(odom odom1, robotPose to_robotPose, uint8_t follow_Dist);
 };
 #endif
