@@ -10,7 +10,7 @@ odom::odom() {
     xPosition = 0_in;
     yPosition = 0_in;
     position = Cartesian(0_in, 0_in);
-    previousRelativeY = (up.get_value())*RLCONV;
+    previousRelativeY = up.get_value()*RLCONV;
     previousRelativeX = sideways.get_value()*YCONV;
     previousInert = imu1.get_heading()*1_deg;
 }

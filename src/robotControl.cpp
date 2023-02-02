@@ -73,6 +73,7 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 }
 
 void RobotControl::goTo(Cartesian Cartiesian) {
+	
 }
 //auton p looper, goes to position given and faces the bot tword heading
 void RobotControl::goTo(odom odom1, robotPose robotPose) {

@@ -4,7 +4,7 @@
 
 #ifndef VEXU_2022_2023_TESTBED_AMT21_H
 #define VEXU_2022_2023_TESTBED_AMT21_H
-#include "main.h"
+#include "pros/apix.h"
 
 //make this an enum?
 #define AMT21_GET_POSITION_COMMAND 0x0

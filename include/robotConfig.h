@@ -4,6 +4,7 @@
 #include "pros/adi.hpp"
 #include "pros/imu.hpp"
 #include <type_traits>
+#include "AMT21.h"
     inline pros::Motor left_front0_mtr(6);
 	inline pros::Motor left_front1_mtr(7);
 	inline pros::Motor left_back0_mtr(10);
@@ -16,5 +17,7 @@
 	inline pros::Rotation left_encoder(20);
 	inline pros::Rotation center_encoder(19);
 	inline pros::Imu imu1(14);
-	inline pros::ADIEncoder up('a', 'b', true); 
-	inline pros::ADIEncoder sideways('c', 'd', false); 
+	//inline pros::ADIEncoder up('a', 'b', true); 
+	//inline pros::ADIEncoder sideways('c', 'd', false);
+	inline AMT21 up(20, 0x54);
+	inline AMT21 sideways(19, 0x54);
