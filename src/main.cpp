@@ -175,6 +175,9 @@ void opcontrol() {
 	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(90.0)) , robotPose(Cartesian(24.0,48.0) , okapi::QAngle(40.0)) , robotPose(Cartesian(48.0,0.0) , okapi::QAngle(240.0)) , 100);
 	int progress = 0;
 	RobotControl robot1;
+	//AMT21 amt21_left(19, 0x58);
+    AMT21 amt21_right(19, 0x5C);
+    AMT21 amt21_middle(19, 0x54);
 	imu1.reset();
 	while(imu1.is_calibrating()==true) {
 		pros::delay(20);
@@ -186,6 +189,11 @@ void opcontrol() {
 	double drivePow=0;
 	pros::Motor intake ();
 	while (true) {
+		//pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
+        pros::lcd::print(2, "AMT21_right value: %d", amt21_right.get_value());
+        pros::lcd::print(4, "AMT21_middle value: %d", amt21_middle.get_value());
+        //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
+        //pros::lcd::print(7, "heading: %f", navx.getHeading());
 		odom1.updateOdom();
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		(pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
@@ -230,17 +238,9 @@ void opcontrol() {
 		}
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 			//intake.move(12);
-			/*for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
-				while(sqrt((odom1.position.x * odom1.position.x) + (odom1.position.y * odom1.position.y)) >= 8_in){
-				drivePow = odom1.position.getMagnitude().convert(okapi::inch)*30;
-				if (drivePow>100) {
-					drivePow = 100;
-				}
-				robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);
-				}
-				odom1.resetOdom(*Deez);
+			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
+				robot1.goTo(odom1 , (*Deez));
 			}
-			*/
 		}
 		// drive11();
 		
