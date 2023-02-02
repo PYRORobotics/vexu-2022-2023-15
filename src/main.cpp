@@ -172,7 +172,7 @@ double normRightY() {
 
 float diagnosticTimer;
 void opcontrol() {
-	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(0.0)) , robotPose(Cartesian(24.0, 120.0) , okapi::QAngle(180.0)) , robotPose(Cartesian(84.0,0.0) , okapi::QAngle(360.0)) , 100);
+	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(0.0)) , robotPose(Cartesian(12.0, 120.0) , okapi::QAngle(180.0)) , robotPose(Cartesian(24.0,0.0) , okapi::QAngle(180.0)) , 190);
 	int progress = 0;
 	RobotControl robot1;
 	//AMT21 amt21_left(19, 0x58);

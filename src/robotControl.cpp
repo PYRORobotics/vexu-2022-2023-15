@@ -78,12 +78,12 @@ void RobotControl::goTo(odom odom1, robotPose robotPose) {
 	Cartesian to_Cartesian(to_Polar);
 	double drivePow;
 	double progress = 1;
-	while(sqrt((to_Cartesian.x * to_Cartesian.x) + (to_Cartesian.y * to_Cartesian.y)) >= 8_in){
+	while(sqrt((to_Cartesian.x * to_Cartesian.x) + (to_Cartesian.y * to_Cartesian.y)) >= 2_in) {
 		drivePow = to_Polar.magnitude.convert(okapi::inch)*30;
 		if (drivePow>100) {
 			drivePow = 100;
 		}
-		this->headingStrafe(odom1.position.getHeading()+180_deg, drivePow * progress, robotPose.heading * (1 - progress));
+		this->headingStrafe(odom1.position.getHeading()+180_deg, drivePow * .3, robotPose.heading * (1 - progress));
 		progress = progress * 0.8;
 	}
 }
