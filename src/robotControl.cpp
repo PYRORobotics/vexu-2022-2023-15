@@ -31,10 +31,10 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 	left_front1_mtr = (straightPow + turnPow + strafePow)*scale;
 	left_back0_mtr = (straightPow + turnPow - strafePow)*scale;
 	left_back1_mtr = (straightPow + turnPow - strafePow)*scale;
-	right_front0_mtr = (straightPow - turnPow - strafePow)*scale;
-	right_front1_mtr = (straightPow - turnPow - strafePow)*scale;
-	right_back0_mtr = (straightPow - turnPow + strafePow)*scale;
-	right_back1_mtr = (straightPow - turnPow + strafePow)*scale;
+	right_front0_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_front1_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_back0_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_back1_mtr = -((straightPow - turnPow - strafePow)*scale);
 }
 
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {
@@ -97,7 +97,7 @@ void RobotControl::goTo(odom odom1, Cartesian to_Cartesian, okapi::QAngle robotF
 		if (drivePow>100) {
 			drivePow = 100;
 		}
-		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3 , robotFacing);
+		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .4 , robotFacing);
 	}
 }
 //auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
