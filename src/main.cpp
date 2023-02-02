@@ -4,7 +4,7 @@
 #include "okapi/impl/device/rotarysensor/IMU.hpp"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
-#include "proto/robotControl.h"
+#include "robotControl.h"
 #include "cartesian.h"
 #include "polar.h"
 #include "odom.h"
@@ -86,10 +86,6 @@ void initialize() {
     pros::delay(100);
     up.reset();
     sideways.reset();
-	//
-	pros::delay(100);
-	up.reset();
-	sideways.reset();
 
 }
 
