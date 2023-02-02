@@ -83,7 +83,7 @@ void RobotControl::goTo(odom odom1, robotPose robotPose) {
 		if (drivePow>100) {
 			drivePow = 100;
 		}
-		this->headingStrafe(odom1.position.getHeading()+180_deg, drivePow, robotPose.heading * (1 - progress));
+		this->headingStrafe(odom1.position.getHeading()+180_deg, drivePow * progress, robotPose.heading * (1 - progress));
 		progress = progress * 0.8;
 	}
 }

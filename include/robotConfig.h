@@ -20,4 +20,4 @@
 	//inline pros::ADIEncoder up('a', 'b', true); 
 	//inline pros::ADIEncoder sideways('c', 'd', false);
 	inline AMT21 up(19, 0x5c);
-	inline AMT21 sideways(19, 0x54);
+	inline AMT21 sideways(20, 0x54);
