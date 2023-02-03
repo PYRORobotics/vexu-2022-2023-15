@@ -13,43 +13,7 @@
 using okapi::inch;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
-
-/*----------------------------------------------------------------------\
-|  Name: Emily Sanders													|
-|  Major: Software Engineering											|
-|  Fun Fact: I've been doing robotics since around 5th grade :D			|
-\----------------------------------------------------------------------*/
-
-//Andrew Kang-Mechanical Engineering-I swam in high school
-/*
- * Charles Jeffries
- * Software Engineering Major, Senior
- * I've been doing VEX for 9 years, and I also have 9 monitors connected to my desktop at home!
- */
-
-
-/**
- *
- *
- * Dominic Murdica
- * Software engineering
- * I am Scuba certified, and enjoy dirt bike riding, rock climbing, and hunting.
- */
-
-/*
-My name is Andrew Ayerh, 
-I'm majoring in Computer Science, 
-and I like to play volleyball in my free time.
-*/
-
-/*
-Taz Hellman, Software Engineering Major, my brother is 16 years older than me
-*/
-
-
-//Name: Brian Levenseller
-//Major Software Engineering
-//Fun Fact: I am remarkably bad at thinking of fun facts
+odom odom1;
 
 /**
  * A callback function for LLEMU's center button.
@@ -77,7 +41,7 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    printf("eneterd initialize.\n");
+    printf("entered initialize.\n");
 		pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
@@ -87,7 +51,8 @@ void initialize() {
     up.reset();
     sideways.reset();
     imu1.initialize();
-
+    pros::delay(100);
+    odom1 = odom();
 }
 
 /**
@@ -126,6 +91,10 @@ void autonomous() {
 		pros::delay(20);
 	}
 	pros::delay(100);
+
+    robot1.goToCharles(odom1, robotPose(1_ft,2_ft, 45_deg), 1_in);
+
+    pros::delay(10000);
 }
 
 /**
@@ -199,7 +168,8 @@ void opcontrol() {
         pros::lcd::print(2, "AMT21_right value: %d", up.get_value());
         pros::lcd::print(4, "AMT21_middle value: %d", sideways.get_value());
         //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
-        pros::lcd::print(7, "heading: %f", imu1.get_heading());
+        pros::lcd::print(6, "heading_inertial: %f", imu2.get_heading());
+        pros::lcd::print(7, "heading_navx: %f", imu1.get_heading());
 		odom1.updateOdom();
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		(pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
@@ -252,6 +222,10 @@ void opcontrol() {
 			robot1.goTo(odom1 , Test.at(130), 8);
 		}
 		// drive11();
+
+        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+            autonomous();
+        }
 		
 	pros::delay(20);
 	}

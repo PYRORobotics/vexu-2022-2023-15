@@ -6,9 +6,9 @@
 
 #define DELAY_TIME 1000
 
-AMT21::AMT21(int port, uint8_t address, bool reversed) : serial_port(port), address(address), reversed(reversed){
+AMT21::AMT21(int port, uint8_t address, bool reversed) : serial_port(port, 115200), address(address), reversed(reversed){
     //default baud for our model is 115200
-    serial_port.set_baudrate(115200);
+    //serial_port.set_baudrate(115200);
 
     //ensure the address is valid (that is, a multiple of 4)
     if(address % 4 !=0){

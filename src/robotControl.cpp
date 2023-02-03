@@ -31,10 +31,10 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 	left_front1_mtr = (straightPow + turnPow + strafePow)*scale;
 	left_back0_mtr = (straightPow + turnPow - strafePow)*scale;
 	left_back1_mtr = (straightPow + turnPow - strafePow)*scale;
-	right_front0_mtr = -((straightPow - turnPow + strafePow)*scale);
-	right_front1_mtr = -((straightPow - turnPow + strafePow)*scale);
-	right_back0_mtr = -((straightPow - turnPow - strafePow)*scale);
-	right_back1_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_front0_mtr = ((straightPow - turnPow - strafePow)*scale);
+	right_front1_mtr = ((straightPow - turnPow - strafePow)*scale);
+	right_back0_mtr = ((straightPow - turnPow + strafePow)*scale);
+	right_back1_mtr = ((straightPow - turnPow + strafePow)*scale);
 }
 
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {
@@ -71,6 +71,32 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 		timer = pros::millis();
 	}
 }
+void RobotControl::goToCharles(odom odom1, robotPose robotPose, okapi::QLength threshold) {
+    //Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
+    double drivePow;
+    Cartesian delta(robotPose.position.x - odom1.position.x, robotPose.position.y - odom1.position.y);
+    int i = 0;
+    while(delta.getMagnitude() >= (threshold)) {
+        odom1.updateOdom();
+        delta.x = (robotPose.position.x - odom1.position.x);
+        delta.y = (robotPose.position.y - odom1.position.y);
+        drivePow = delta.getMagnitude().convert(okapi::inch) * 100; // basic as heck P loop
+        if(drivePow > 100){
+            drivePow = 100;
+        }
+
+        this->headingStrafe(delta.getHeading()+0_deg, drivePow * .3, (robotPose.heading));
+
+        if(i%100 == 0){
+            printf("Dmag: %f\n", delta.getMagnitude().convert(okapi::inch));
+            printf("Ox: %f\n", odom1.position.x.convert(okapi::inch));
+            printf("Oy: %f\n", odom1.position.y.convert(okapi::inch));
+        }
+        i++;
+    }
+}
+
+
 //auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
 void RobotControl::goTo(odom odom1, robotPose robotPose, uint8_t follow_Dist) {
 	Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
@@ -83,7 +109,8 @@ void RobotControl::goTo(odom odom1, robotPose robotPose, uint8_t follow_Dist) {
 		if (drivePow>100) {
 			drivePow = 100;
 		}
-		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3, (robotPose.heading * (1 - progress)));
+        //this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3, (robotPose.heading * (1 - progress)));
+        this->headingStrafe(to_Polar.angle+0_deg, drivePow * .3, (robotPose.heading * (1 - progress)));
 		progress = progress * 0.8;
 	}
 }
