@@ -71,28 +71,32 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 		timer = pros::millis();
 	}
 }
-void RobotControl::goToCharles(odom odom1, robotPose robotPose, okapi::QLength threshold) {
+void RobotControl::goToCharles(odom *odom1, robotPose robotPose, okapi::QLength threshold) {
     //Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
     double drivePow;
-    Cartesian delta(robotPose.position.x - odom1.position.x, robotPose.position.y - odom1.position.y);
+    Cartesian delta(robotPose.position.x - odom1->position.x, robotPose.position.y - odom1->position.y);
     int i = 0;
-    while(delta.getMagnitude() >= (threshold)) {
-        odom1.updateOdom();
-        delta.x = (robotPose.position.x - odom1.position.x);
-        delta.y = (robotPose.position.y - odom1.position.y);
-        drivePow = delta.getMagnitude().convert(okapi::inch) * 100; // basic as heck P loop
+    while(delta.getMagnitude() >= (threshold) && !master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        printf("1");
+        odom1->updateOdom();
+        printf("2");
+        delta.x = (robotPose.position.x - odom1->position.x);
+        delta.y = (robotPose.position.y - odom1->position.y);
+        drivePow = delta.getMagnitude().convert(okapi::inch) * 30; // basic as heck P loop
         if(drivePow > 100){
             drivePow = 100;
         }
 
-        this->headingStrafe(delta.getHeading()+0_deg, drivePow * .3, (robotPose.heading));
-
-        if(i%100 == 0){
+        this->headingStrafe(delta.getHeading()+0_deg, drivePow * 1.5, (robotPose.heading));
+        printf("3\n");
+        if(i%1 == 0){
             printf("Dmag: %f\n", delta.getMagnitude().convert(okapi::inch));
-            printf("Ox: %f\n", odom1.position.x.convert(okapi::inch));
-            printf("Oy: %f\n", odom1.position.y.convert(okapi::inch));
+            odom1->printOdom();
+            //printf("Ox: %f\n", odom1.position.x.convert(okapi::inch));
+            //printf("Oy: %f\n", odom1.position.y.convert(okapi::inch));
         }
         i++;
+        pros::delay(5);
     }
 }
 

@@ -25,6 +25,6 @@ public:
 
     void goTo(odom odom1, robotPose to_robotPose, uint8_t follow_Dist);
 
-    void goToCharles(odom odom1, robotPose robotPose, okapi::QLength threshold);
+    void goToCharles(odom *odom1, robotPose robotPose, okapi::QLength threshold);
 };
 #endif

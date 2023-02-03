@@ -35,18 +35,23 @@ void odom::resetOdom() {
 //     previousInert = imu1.get_heading()*1_rad;
 // }
 void::odom::updateOdom() {
-    yRelativeDelta = (up.get_value())*RLCONV - previousRelativeY;
-    xRelativeDelta = sideways.get_value()*YCONV - previousRelativeX;
+    double up1_val = up.get_value();
+    double up2_val = up2.get_value();
+    double sideways_val = sideways.get_value();
+    double heading = imu1.get_heading();
+
+    yRelativeDelta = ((up1_val + up2_val)/2.0)*RLCONV - previousRelativeY;
+    xRelativeDelta = sideways_val*YCONV - previousRelativeX;
     //robot relative
     Polar delta = Polar(xRelativeDelta,yRelativeDelta);
     //converting to field relative
     odomAngle= ((previousInert+imu1.get_heading()*1_deg)/2);
-    delta.addAngle(imu1.get_heading()*1_deg);
+    delta.addAngle(heading*1_deg);
     //add to current position
     position.add(delta);
-    previousRelativeY = (up.get_value())*RLCONV;
-    previousRelativeX = sideways.get_value()*YCONV;
-    previousInert = imu1.get_heading()*1_deg;
+    previousRelativeY = ((up1_val + up2_val)/2.0)*RLCONV;
+    previousRelativeX = sideways_val*YCONV;
+    previousInert = heading*1_deg;
 
     // printf("yRelativeDelta: %lf\n", yRelativeDelta);
     // printf("xRelativeDelta: %lf\n", xRelativeDelta);

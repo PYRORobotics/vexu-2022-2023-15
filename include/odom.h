@@ -9,8 +9,8 @@ class Cartesian;
 
 class odom{
     private:
-    #define RLCONV 0.00037339_in
-    #define YCONV 0.00037339_in
+    #define RLCONV 0.00038328_in
+    #define YCONV 0.00038328_in
     okapi::QLength rightConversion;
     okapi::QLength xRelativeDelta;
     okapi::QLength yRelativeDelta;

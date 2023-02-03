@@ -12,7 +12,6 @@
 
 using okapi::inch;
 
-pros::Controller master(pros::E_CONTROLLER_MASTER);
 odom odom1;
 
 /**
@@ -34,6 +33,13 @@ void on_center_button() {
 	}
 }
 
+void odomTask(){
+    while(true){
+        odom1.updateOdom();
+        pros::delay(20);
+    }
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -49,10 +55,13 @@ void initialize() {
 
     pros::delay(100);
     up.reset();
+    up2.reset();
     sideways.reset();
     imu1.initialize();
     pros::delay(100);
     odom1 = odom();
+
+    //pros::Task myTask(odomTask);
 }
 
 /**
@@ -92,9 +101,14 @@ void autonomous() {
 	}
 	pros::delay(100);
 
-    robot1.goToCharles(odom1, robotPose(1_ft,2_ft, 45_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(2_ft,4_ft, 0_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(4_ft,4_ft, 90_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(2_ft,4_ft, 0_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(0_ft,0_ft, 0_deg), 1_in);
 
-    pros::delay(10000);
+
+
+    //pros::delay(10000);
 }
 
 /**
@@ -160,12 +174,13 @@ void opcontrol() {
 	pros::delay(100);
 	Cartesian stick1;
 	okapi::QAngle robotHeading = 0_rad;
-	odom odom1 = odom();
+	//odom odom1 = odom();
 	double drivePow=0;
 	//pros::Motor intake ();
 	while (true) {
 		//pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
         pros::lcd::print(2, "AMT21_right value: %d", up.get_value());
+        pros::lcd::print(3, "AMT21_left value: %d", up2.get_value());
         pros::lcd::print(4, "AMT21_middle value: %d", sideways.get_value());
         //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
         pros::lcd::print(6, "heading_inertial: %f", imu2.get_heading());
@@ -192,7 +207,9 @@ void opcontrol() {
 			// printf("controller: %f\n", normRightX());
 			// printf("robotHeading: %f\n", robotHeading.convert(okapi::degree));
             // printf("-------------------------\n");
-			printf("up: %d\n", up.get_value());
+            printf("up: %d\n", up.get_value());
+            printf("up2: %d\n", up2.get_value());
+            printf("average: %f\n", (up.get_value() + up2.get_value())/2.0);
 			printf("sideways: %d\n", sideways.get_value());
             diagnosticTimer = pros::millis();
 			odom1.printOdom();
