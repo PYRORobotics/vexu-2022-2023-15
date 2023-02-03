@@ -33,14 +33,16 @@
  * For instance, you can do `4_mtr = 50` to set motor 4's target velocity to 50
  */
 #define PROS_USE_LITERALS
-
+#include "pros/apix.h"
 #include "api.h"
 
 /**
  * You should add more #includes here
  */
-//#include "okapi/api.hpp"
+#include "okapi/api.hpp"
 //#include "pros/api_legacy.h"
+#include "odom.h"
+#include "robotConfig.h"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do
@@ -51,7 +53,7 @@
  * namespace.
  */
 // using namespace pros;
-// using namespace pros::literals;
+ using namespace okapi::literals;
 // using namespace okapi;
 
 /**
