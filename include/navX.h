@@ -8,6 +8,7 @@ class navX{
         double get_heading();
         bool is_calibrating();
         void reset();
+        void initialize();
 
     private:
         Arduino arduino;

@@ -14,8 +14,6 @@ AMT21::AMT21(int port, uint8_t address, bool reversed) : serial_port(port), addr
     if(address % 4 !=0){
         //TODO: throw an exception here
     }
-    //pros::delay(100);
-    reset();
 }
 
 uint16_t AMT21::get_position() {

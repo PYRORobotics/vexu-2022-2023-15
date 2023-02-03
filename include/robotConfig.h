@@ -18,8 +18,8 @@
 	inline pros::Rotation right_encoder(21);
 	inline pros::Rotation left_encoder(20);
 	inline pros::Rotation center_encoder(19);
-    inline pros::Imu imu1(14);
-    //inline navX imu1(13);
+    //inline pros::Imu imu1(14);
+    inline navX imu1(13);
 	//inline pros::ADIEncoder up('a', 'b', true);
 	//inline pros::ADIEncoder sideways('c', 'd', false);
 	inline AMT21 up(19, 0x5c,true);

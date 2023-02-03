@@ -15,6 +15,8 @@ public:
 
     void setD2(bool value);
 
+    void initialize();
+
     bool getD1();
 
     bool getD2();
@@ -36,5 +38,7 @@ private:
     void error_msg(const char *format, ...);
 
     void debug_msg(const char *format, ...);
+
+
 };
 #endif //VEXU_2022_2023_TESTBED_ARDUINO_COMMS_H

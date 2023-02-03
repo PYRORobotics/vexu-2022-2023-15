@@ -4,6 +4,10 @@ navX::navX(int port) : arduino(port) {
 
 }
 
+void navX::initialize() {
+    arduino.initialize();
+}
+
 double navX::get_heading_raw() {
     int rawValue = arduino.getCounter();
     double scaledValue = rawValue/100.0;

@@ -9,6 +9,10 @@
 //#define ERROR
 
 Arduino::Arduino(int port) : serial_port(port, 115200){
+
+}
+
+void Arduino::initialize(){
     pros::Task comms([this] { this->comms_thread(); });
 }
 
@@ -160,13 +164,20 @@ void Arduino::write_command(){
         error_msg("COBS encode failed! Status code: %d\n", result.status);
     }
 
-
-    printf("generated %d COBS-encoded bytes: ", result.out_len);
+    foo.clear();
+    foo << "Generated " << result.out_len << " COBS-encoded bytes: ";
+    //printf("generated %d COBS-encoded bytes: ", result.out_len);
     for(int j = 0; j < result.out_len; j++){
-        if (j > 0) printf(":");
-        printf("%02X", buff_cobs[j]);
+        if (j > 0) {
+            //printf(":");
+            foo << ":";
+        }
+        foo << std::hex << buff_cobs[j];
+        //printf("%02X", buff_cobs[j]);
     }
-    printf("\n");
+    //printf("\n");
+    foo << std::endl;
+    debug_msg(foo.str().c_str());
     //null terminate the message
     buff_cobs[result.out_len] = '\0';
 

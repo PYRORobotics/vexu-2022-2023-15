@@ -86,6 +86,7 @@ void initialize() {
     pros::delay(100);
     up.reset();
     sideways.reset();
+    imu1.initialize();
 
 }
 
@@ -198,7 +199,7 @@ void opcontrol() {
         pros::lcd::print(2, "AMT21_right value: %d", up.get_value());
         pros::lcd::print(4, "AMT21_middle value: %d", sideways.get_value());
         //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
-        //pros::lcd::print(7, "heading: %f", navx.getHeading());
+        pros::lcd::print(7, "heading: %f", imu1.get_heading());
 		odom1.updateOdom();
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		(pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
