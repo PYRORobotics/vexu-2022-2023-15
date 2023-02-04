@@ -186,7 +186,7 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-void facePoint(RobotControl* robot, Cartesian pointToFace){
+void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.5){
     //Cartesian absoluteGoalPos(122.22_in, 122.22_in);
     Cartesian relativeGoalPos(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
     okapi::QAngle deltaAngle = relativeGoalPos.getHeading() - (imu1.get_heading() * 1_deg);
@@ -198,7 +198,7 @@ void facePoint(RobotControl* robot, Cartesian pointToFace){
     double kP = 11.0;
     double kD = 9.0;
     int counter = 0;
-    while(abs(deltaAngle.convert(okapi::degree)) > 0.5 || abs(derivativeAngle.convert(okapi::degree)) > 0.01){
+    while((abs(deltaAngle.convert(okapi::degree)) > threshold || abs(derivativeAngle.convert(okapi::degree)) > 0.01) && !(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))){
         relativeGoalPos = Cartesian(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
         deltaAngle = relativeGoalPos.getHeading() + 180_deg - (imu1.get_heading() * 1_deg);
         if(deltaAngle > 180_deg)
@@ -242,8 +242,8 @@ void autonomous() {
     if(true) { //true for match auto, false for skills auto
 
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 0.5_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 0.5_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 1_in);
 
         pros::delay(500);
         intake.move_relative(-120, 300);
@@ -256,7 +256,7 @@ void autonomous() {
 
         facePoint(&robot1, Cartesian(122.22, 122.22));
 
-        rpm_target = 3200;
+        rpm_target = 3150;
         pros::delay(5000);
         indexer.set_value(true); //shoot first disc
         pros::delay(1000);
@@ -279,23 +279,63 @@ void autonomous() {
     }
     else{
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 0.5_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 0.75_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 13_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 1_in);
 
         pros::delay(500);
-        intake.move_relative(-120, 300);
+        intake.move_relative(180, 300);
         pros::delay(2000);
         //while(!intake.is_stopped()){
         //    pros::delay(10);
         //}
-        robot1.goToCharles(&odom1, robotPose(136.5_in, 31.5_in, 90_deg), 0.5_in);
+        robot1.goToCharles(&odom1, robotPose(116.0_in, 31.5_in, 90_deg), 1_in);
+
+        robot1.goToCharles(&odom1, robotPose(136.0_in, 31.5_in, 90_deg), 1_in);
 
         pros::delay(500);
-        intake.move_relative(-120, 300);
+        intake.move_relative(180, 300);
         pros::delay(2000);
+
+        robot1.goToCharles(&odom1, robotPose(122.0_in, 80_in, 180_deg), 1_in);
+        facePoint(&robot1, Cartesian(122.22, 122.22));
+
+        rpm_target = 3000;
+        pros::delay(5000);
+        indexer.set_value(true); //shoot first disc
+        pros::delay(1000);
+        indexer.set_value(false);
+        pros::delay(1500);
+
+
+        robot1.goToCharles(&odom1, robotPose(122_in, 70_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(122_in, 80_in, 180_deg), 1_in);
+
+        facePoint(&robot1, Cartesian(122.22, 122.22));
+        pros::delay(1000);
+
+        //pros::delay(500);
+        facePoint(&robot1, Cartesian(122.22, 122.22));
+        pros::delay(1000);
+
+        indexer.set_value(true); //shoot second disc
+        pros::delay(1500);
+        indexer.set_value(false);
+        pros::delay(1500);
+        rpm_target = 0;
+
+
+        robot1.goToCharles(&odom1, robotPose(120_in, 24_in, 180_deg), 1_in);
+        facePoint(&robot1, Cartesian(0, 144));
+
+        pros::delay(10000);
+        endgame.set_value(true);          //shoot endgame
+        pros::delay(5000);
+
+
     }
 
 
+    rpm_target = 0;
 
     //pros::delay(10000);
 }
@@ -362,7 +402,8 @@ void opcontrol() {
 	}
 	pros::delay(100);
 	Cartesian stick1;
-	okapi::QAngle robotHeading = 0_rad;
+    //okapi::QAngle robotHeading = 0_rad;
+    okapi::QAngle robotHeading = imu1.get_heading()*1_deg;
 	//odom odom1 = odom();
 	double drivePow=0;
 	//pros::Motor intake ();
@@ -381,10 +422,10 @@ void opcontrol() {
 		stick1.updatePoint(x*1_in, y*1_in);
 		okapi::QAngle headingInput = stick1.getHeading() + (imu1.get_heading() * 1_deg);
 		double magn = pow((x*x+y*y), 0.5);
-		if(fabs(normRightX())>10) {
+		if(fabs(normRightX())>5) {
 			robotHeading = robotHeading+normRightX()*.06_deg;
 		}
-		if((fabs(normRightX())<5)&&(fabs(robotHeading.convert(okapi::degree)-imu1.get_heading())>50)) {
+		if((fabs(normRightX())<=5)&&(fabs(robotHeading.convert(okapi::degree)-imu1.get_heading())>50)) {
 			robotHeading = imu1.get_heading()*1_deg;
 		}
 		if((pros::millis()-diagnosticTimer)>1000) {
@@ -401,19 +442,23 @@ void opcontrol() {
 			//odom1.printOdom();
 		}
 		// robot1.absStrafe(headingInput, magn, turn*1);
-		 
+
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+            headingInput += 180_deg;
+        }
+
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)==true) {
-			drivePow = odom1.position.getMagnitude().convert(okapi::inch)*30;
+			/*drivePow = odom1.position.getMagnitude().convert(okapi::inch)*30;
 			if (drivePow>100) {
 				drivePow = 100;
 			}
 			robotHeading = 0_rad;
-			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	
+			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	*/
 		} else {
-			robot1.headingStrafe(headingInput, magn, robotHeading);
+			robot1.absStrafe(headingInput, magn, normRightX());
             //robot1.
 		}
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
 			odom1.resetOdom();
 		}
 //		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
@@ -436,7 +481,7 @@ void opcontrol() {
             rpm_target = 3600;
         }
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-            rpm_target = 3000;
+            rpm_target = 2900;
         }
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
             //rpm_target -= 50;
@@ -460,9 +505,13 @@ void opcontrol() {
             intake.move_velocity(0);
         }
 
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
-            intake.move_relative(90, 300);
-            pros::delay(2000);
+//        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+//            intake.move_relative(90, 300);
+//            pros::delay(2000);
+//        }
+
+        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            facePoint(&robot1, Cartesian(122.22, 122.22));
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
