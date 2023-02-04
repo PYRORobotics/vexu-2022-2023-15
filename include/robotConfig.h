@@ -37,5 +37,6 @@
 	inline AMT21 sideways(11, 0x54, true);
     inline pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-    inline pros::ADIDigitalOut piston ('E');
+    inline pros::ADIDigitalOut indexer ('E');
+    inline pros::ADIDigitalOut endgame ('H');
 

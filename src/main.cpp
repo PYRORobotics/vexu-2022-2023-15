@@ -165,7 +165,7 @@ void initialize() {
 
     pros::Task myTask(odomTask);
     pros::Task myFlywheelTask(flywheelTask);
-    piston.set_value(false);
+    indexer.set_value(false);
 }
 
 /**
@@ -196,7 +196,7 @@ void facePoint(RobotControl* robot, Cartesian pointToFace){
     printf("entering loop\n");
     pros::delay(10);
     double kP = 11.0;
-    double kD = -9.0;
+    double kD = 9.0;
     int counter = 0;
     while(abs(deltaAngle.convert(okapi::degree)) > 0.5 || abs(derivativeAngle.convert(okapi::degree)) > 0.01){
         relativeGoalPos = Cartesian(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
@@ -204,10 +204,10 @@ void facePoint(RobotControl* robot, Cartesian pointToFace){
         if(deltaAngle > 180_deg)
             deltaAngle -= 180_deg;
 
-        derivativeAngle = deltaAngle-lastAngle;
+        derivativeAngle = lastAngle - deltaAngle;
 
         lastAngle = deltaAngle;
-        robot->raw_tank(0, deltaAngle.convert(okapi::degree) * kP - derivativeAngle.convert(okapi::degree) * kD, 0);
+        robot->raw_tank(0, (deltaAngle.convert(okapi::degree) * kP) - (derivativeAngle.convert(okapi::degree) * kD), 0);
 
         counter++;
         if(counter%50 == 0){
@@ -239,39 +239,61 @@ void autonomous() {
 		pros::delay(20);
 	}
 	pros::delay(100);
+    if(true) { //true for match auto, false for skills auto
 
-    robot1.goToCharles(&odom1, robotPose(88.5_in,13_in, 180_deg), 1_in);
-    robot1.goToCharles(&odom1, robotPose(106_in,13_in, 180_deg), 0.5_in);
-    robot1.goToCharles(&odom1, robotPose(106_in,8.0_in, 180_deg), 0.5_in);
+        robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 0.5_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 0.5_in);
 
-    pros::delay(500);
-    intake.move_relative(90, 300);
-    pros::delay(2000);
-    //while(!intake.is_stopped()){
-    //    pros::delay(10);
-    //}
+        pros::delay(500);
+        intake.move_relative(-120, 300);
+        pros::delay(2000);
+        //while(!intake.is_stopped()){
+        //    pros::delay(10);
+        //}
 
-    robot1.goToCharles(&odom1, robotPose(106_in,16_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
 
-    facePoint(&robot1, Cartesian(122.22,122.22));
+        facePoint(&robot1, Cartesian(122.22, 122.22));
 
-    rpm_target = 3300;
-    pros::delay(5000);
-    piston.set_value(true); //shoot first disc
-    pros::delay(1000);
-    piston.set_value(false);
-    pros::delay(1500);
+        rpm_target = 3200;
+        pros::delay(5000);
+        indexer.set_value(true); //shoot first disc
+        pros::delay(1000);
+        indexer.set_value(false);
+        pros::delay(1500);
 
-    robot1.goToCharles(&odom1, robotPose(106_in,10_in, 180_deg), 1_in);
-    robot1.goToCharles(&odom1, robotPose(106_in,16_in, 180_deg), 1_in);
-    facePoint(&robot1, Cartesian(122.22,122.22));
+        robot1.goToCharles(&odom1, robotPose(106_in, 10_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
 
-    piston.set_value(true); //shoot second disc
-    pros::delay(1500);
-    piston.set_value(false);
-    pros::delay(1500);
+        //pros::delay(500);
+        facePoint(&robot1, Cartesian(122.22, 122.22));
+        pros::delay(1000);
 
-    rpm_target = 0;
+        indexer.set_value(true); //shoot second disc
+        pros::delay(1500);
+        indexer.set_value(false);
+        pros::delay(1500);
+
+        rpm_target = 0;
+    }
+    else{
+        robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 0.5_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 0.75_in);
+
+        pros::delay(500);
+        intake.move_relative(-120, 300);
+        pros::delay(2000);
+        //while(!intake.is_stopped()){
+        //    pros::delay(10);
+        //}
+        robot1.goToCharles(&odom1, robotPose(136.5_in, 31.5_in, 90_deg), 0.5_in);
+
+        pros::delay(500);
+        intake.move_relative(-120, 300);
+        pros::delay(2000);
+    }
 
 
 
@@ -422,10 +444,10 @@ void opcontrol() {
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-            piston.set_value(true);
+            indexer.set_value(true);
         }
         else{
-            piston.set_value(false);
+            indexer.set_value(false);
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
@@ -441,6 +463,13 @@ void opcontrol() {
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
             intake.move_relative(90, 300);
             pros::delay(2000);
+        }
+
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+            endgame.set_value(true);
+        }
+        else{
+            endgame.set_value(false);
         }
 		
 	pros::delay(20);
