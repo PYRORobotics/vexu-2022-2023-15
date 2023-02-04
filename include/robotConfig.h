@@ -24,7 +24,7 @@
     inline pros::Motor flywheelBig(14);
     inline pros::Motor flywheelSmall(15);
 
-    inline pros::Motor intake(17);
+    inline pros::Motor intake(17, pros::E_MOTOR_GEAR_BLUE);
 	/*inline pros::Rotation right_encoder(21);
 	inline pros::Rotation left_encoder(20);
 	inline pros::Rotation center_encoder(19);*/

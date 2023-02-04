@@ -203,10 +203,18 @@ void autonomous() {
 	}
 	pros::delay(100);
 
-    robot1.goToCharles(&odom1, robotPose(2_ft,4_ft, 0_deg), 1_in);
-    robot1.goToCharles(&odom1, robotPose(4_ft,4_ft, 90_deg), 1_in);
-    robot1.goToCharles(&odom1, robotPose(2_ft,4_ft, 0_deg), 1_in);
-    robot1.goToCharles(&odom1, robotPose(0_ft,0_ft, 0_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(0_ft,6_in, 0_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(18_in,6_in, 0_deg), 1_in);
+    robot1.goToCharles(&odom1, robotPose(18_in,0.0_in, 0_deg), 1_in);
+
+    intake.move_relative(90, 300);
+    pros::delay(20);
+    while(!intake.is_stopped()){
+        pros::delay(10);
+    }
+
+    robot1.goToCharles(&odom1, robotPose(0_ft,6_in, 0_deg), 1_in);
+
 
 
 
@@ -361,10 +369,10 @@ void opcontrol() {
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-            intake.move_velocity(200);
+            intake.move_velocity(600);
         }
         else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            intake.move_velocity(-200);
+            intake.move_velocity(-600);
         }
         else{
             intake.move_velocity(0);
