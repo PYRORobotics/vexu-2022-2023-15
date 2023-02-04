@@ -31,10 +31,10 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 	left_front1_mtr = (straightPow + turnPow + strafePow)*scale;
 	left_back0_mtr = (straightPow + turnPow - strafePow)*scale;
 	left_back1_mtr = (straightPow + turnPow - strafePow)*scale;
-	right_front0_mtr = ((straightPow - turnPow - strafePow)*scale);
-	right_front1_mtr = ((straightPow - turnPow - strafePow)*scale);
-	right_back0_mtr = ((straightPow - turnPow + strafePow)*scale);
-	right_back1_mtr = ((straightPow - turnPow + strafePow)*scale);
+	right_front0_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_front1_mtr = -((straightPow - turnPow - strafePow)*scale);
+	right_back0_mtr = -((straightPow - turnPow + strafePow)*scale);
+	right_back1_mtr = -((straightPow - turnPow + strafePow)*scale);
 }
 
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {

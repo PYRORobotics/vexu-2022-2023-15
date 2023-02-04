@@ -36,7 +36,107 @@ void on_center_button() {
 void odomTask(){
     while(true){
         odom1.updateOdom();
-        pros::delay(20);
+        pros::delay(5);
+    }
+}
+
+int rpm_target = 0;
+
+struct TBHValues {
+double error = 0;
+double current = 0;
+double last_error = 0;
+double target = rpm_target / 3600.0;
+double drive = 0;
+double Kp = .02;
+double drive_approx = .80; //78
+int first_cross = 1;
+double drive_at = 0;
+double drive_at_zero = 0;
+pros::Motor motor;
+};
+
+bool sgn(double num) {
+    if(num > 0)
+        return true;
+    else
+        return false;
+}
+
+void doTBH(struct TBHValues* v){
+    v->target = rpm_target / 3600.0;
+
+    v->current = v->motor.get_actual_velocity() / 200.0;
+
+
+    // calculate error in velocity
+    // target is desired velocity
+    // current is measured velocity
+    v->error = v->target - v->current;
+
+    // Use Kp as gain
+    v->drive = v->drive + (v->error * v->Kp);
+
+    // Clip - we are only going forwards
+    if(v->drive > 1 )
+        v->drive = 1;
+    if(v->drive < 0 )
+        v->drive = 0;
+
+    // Check for zero crossing
+    if(sgn(v->error) != sgn(v->last_error) ) {
+        // First zero crossing after a new set velocity command
+        if( v->first_cross ) {
+            // Set drive to the open loop approximation
+            v->drive = v->drive_approx;
+            v->first_cross = 0;
+        }
+        else
+            v->drive = 0.5 * ( v->drive + v->drive_at_zero );
+
+        // Save this drive value in the "tbh" variable
+        v->drive_at_zero = v->drive;
+    }
+
+    // Save last error
+    v->last_error = v->error;
+
+    v->motor.move(127 * v->drive);
+}
+
+void flywheelTask(){
+    struct TBHValues bigWheel = {
+            .error = 0,
+            .current = 0,
+            .last_error = 0,
+            .target = rpm_target / 3600.0,
+            .drive = 0,
+            .Kp = .02,
+            .drive_approx = .80, //78
+            .first_cross = 1,
+            .drive_at = 0,
+            .drive_at_zero = 0,
+            .motor = flywheelBig
+    };
+    struct TBHValues smallWheel = {
+            .error = 0,
+            .current = 0,
+            .last_error = 0,
+            .target = rpm_target / 3600.0,
+            .drive = 0,
+            .Kp = .02,
+            .drive_approx = .80, //78
+            .first_cross = 1,
+            .drive_at = 0,
+            .drive_at_zero = 0,
+            .motor = flywheelSmall
+    };
+    while(true){
+        pros::lcd::print(0, "Small V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
+        pros::lcd::print(1, "Big V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
+        doTBH(&bigWheel);
+        doTBH(&smallWheel);
+        pros::delay(10);
     }
 }
 
@@ -62,6 +162,8 @@ void initialize() {
     odom1 = odom();
 
     //pros::Task myTask(odomTask);
+    pros::Task myFlywheelTask(flywheelTask);
+    piston.set_value(false);
 }
 
 /**
@@ -185,15 +287,12 @@ void opcontrol() {
         //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
         pros::lcd::print(6, "heading_inertial: %f", imu2.get_heading());
         pros::lcd::print(7, "heading_navx: %f", imu1.get_heading());
-		odom1.updateOdom();
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		(pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		(pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+		//odom1.updateOdom();
 		int x = master.get_analog(ANALOG_LEFT_X);
 		int y = master.get_analog(ANALOG_LEFT_Y);
 		int turn = master.get_analog(ANALOG_RIGHT_X);
 		stick1.updatePoint(x*1_in, y*1_in);
-		okapi::QAngle headingInput = stick1.getHeading();
+		okapi::QAngle headingInput = stick1.getHeading() + (imu1.get_heading() * 1_deg);
 		double magn = pow((x*x+y*y), 0.5);
 		if(fabs(normRightX())>10) {
 			robotHeading = robotHeading+normRightX()*.06_deg;
@@ -224,24 +323,51 @@ void opcontrol() {
 			robotHeading = 0_rad;
 			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	
 		} else {
-			robot1.headingStrafe(headingInput, magn, robotHeading);	
+			robot1.headingStrafe(headingInput, magn, robotHeading);
+            //robot1.
 		}
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
 			odom1.resetOdom();
 		}
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-			//intake.move(12);
-			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
-				robot1.goTo(odom1 , (*Deez), 8);
-			}
-		}
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
-			robot1.goTo(odom1 , Test.at(130), 8);
-		}
+//		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+//			//intake.move(12);
+//			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
+//				robot1.goTo(odom1 , (*Deez), 8);
+//			}
+//		}
+//		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+//			robot1.goTo(odom1 , Test.at(130), 8);
+//		}
 		// drive11();
 
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        /*if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
             autonomous();
+        }*/
+
+        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+            //rpm_target += 50;
+            rpm_target = 3000;
+        }
+        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+            //rpm_target -= 50;
+            rpm_target = 0;
+        }
+
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+            piston.set_value(true);
+        }
+        else{
+            piston.set_value(false);
+        }
+
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+            intake.move_velocity(200);
+        }
+        else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+            intake.move_velocity(-200);
+        }
+        else{
+            intake.move_velocity(0);
         }
 		
 	pros::delay(20);
