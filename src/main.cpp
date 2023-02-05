@@ -242,8 +242,8 @@ void autonomous() {
     if(true) { //true for match auto, false for skills auto
 
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 11_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 12_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
 
         pros::delay(500);
         intake.move_relative(-120, 300);
@@ -279,24 +279,24 @@ void autonomous() {
     }
     else{
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 8.0_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(111_in, 13_in, 180_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
 
         pros::delay(500);
-        intake.move_relative(180, 300);
+        intake.move_relative(180, 200);
         pros::delay(2000);
         //while(!intake.is_stopped()){
         //    pros::delay(10);
         //}
-        robot1.goToCharles(&odom1, robotPose(116.0_in, 31.5_in, 90_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(125.0_in, 30.5_in, 90_deg), 1_in);
 
-        robot1.goToCharles(&odom1, robotPose(136.0_in, 31.5_in, 90_deg), 1_in);
+        robot1.goToCharles(&odom1, robotPose(136.0_in, 31.5_in, 90_deg), 1.5_in);
 
         pros::delay(500);
-        intake.move_relative(180, 300);
+        intake.move_relative(180, 200);
         pros::delay(2000);
 
-        robot1.goToCharles(&odom1, robotPose(122.0_in, 80_in, 180_deg), 1_in);
+        /*robot1.goToCharles(&odom1, robotPose(122.0_in, 80_in, 180_deg), 1_in);
         facePoint(&robot1, Cartesian(122.22, 122.22));
 
         rpm_target = 3000;
@@ -323,7 +323,7 @@ void autonomous() {
         pros::delay(1500);
         rpm_target = 0;
 
-
+*/
         robot1.goToCharles(&odom1, robotPose(120_in, 24_in, 180_deg), 1_in);
         facePoint(&robot1, Cartesian(0, 144));
 
@@ -496,10 +496,10 @@ void opcontrol() {
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-            intake.move_velocity(600);
+            intake.move_velocity(200);
         }
         else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            intake.move_velocity(-600);
+            intake.move_velocity(-200);
         }
         else{
             intake.move_velocity(0);
