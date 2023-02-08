@@ -154,18 +154,20 @@ void initialize() {
 	pros::lcd::register_btn1_cb(on_center_button);
 
     pros::delay(100);
-    up.reset();
+    /*up.reset();
     up2.reset();
     sideways.reset();
     imu1.initialize();
-    pros::delay(100);
-    odom1 = odom();
+    pros::delay(100);*/
+    //odom1 = odom();
 
-    odom1.position = Cartesian(88.5_in, 7.5_in);
+    //odom1.position = Cartesian(88.5_in, 7.5_in);
 
-    pros::Task myTask(odomTask);
-    pros::Task myFlywheelTask(flywheelTask);
+    //pros::Task myTask(odomTask);
+    //pros::Task myFlywheelTask(flywheelTask);
     indexer.set_value(false);
+
+    sylib::initialize();
 }
 
 /**
@@ -347,8 +349,32 @@ double normRightY() {
 
 // }
 
+void opcontrol(){
+// Create an addrled object
+    auto addrled = sylib::Addrled(22, 2, 26);
+ 
+    // Set the LED strip to a gradient in HSV color space
+    // that displays a full range of hues
+    addrled.gradient(0xFF0000, 0xFFEE00);
+ 
+    // Cycle the colors at speed 10
+    addrled.cycle(*addrled, 10);
+
+    
+    
+    // Store the time at the start of the loop
+    std::uint32_t clock = sylib::millis();
+    while (true) {
+        //printf("looping\n");
+        // 10ms delay to allow other tasks to run
+        //addrled.pulse(0x0000FF, 4, 52);
+        sylib::delay_until(&clock, 500);
+    }
+}
+
 float diagnosticTimer;
-void opcontrol() {
+void opcontrol2() {
+    
 	//pros::delay(100);
 	//up.reset();
 	//sideways.reset();
