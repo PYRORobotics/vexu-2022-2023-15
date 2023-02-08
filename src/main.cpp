@@ -355,10 +355,14 @@ void opcontrol(){
  
     // Set the LED strip to a gradient in HSV color space
     // that displays a full range of hues
-    addrled.gradient(0xFF0000, 0xFFEE00);
+    //addrled.gradient(0xFF0000, 0xFFEE00, 4);
  
     // Cycle the colors at speed 10
-    addrled.cycle(*addrled, 10);
+    //addrled.cycle(*addrled, 10);
+
+    for(int i =0; i < 26; i++){
+        addrled.set_pixel(0XFF0000 + i * 0x100, i);
+    }
 
     
     
