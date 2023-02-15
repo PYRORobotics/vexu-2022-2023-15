@@ -33,8 +33,10 @@
  * For instance, you can do `4_mtr = 50` to set motor 4's target velocity to 50
  */
 #define PROS_USE_LITERALS
-#include "pros/apix.h"
+
 #include "api.h"
+#include "pros/apix.h"
+#include "sylib/sylib.hpp"
 
 /**
  * You should add more #includes here
@@ -53,7 +55,8 @@
  * namespace.
  */
 // using namespace pros;
- using namespace okapi::literals;
+// using namespace pros::literals;
+using namespace okapi::literals;
 // using namespace okapi;
 
 /**

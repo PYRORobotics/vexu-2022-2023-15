@@ -53,7 +53,7 @@ double drive_approx = .80; //78
 int first_cross = 1;
 double drive_at = 0;
 double drive_at_zero = 0;
-pros::Motor motor;
+sylib::Motor* motor;
 };
 
 bool sgn(double num) {
@@ -66,7 +66,7 @@ bool sgn(double num) {
 void doTBH(struct TBHValues* v){
     v->target = rpm_target / 3600.0;
 
-    v->current = v->motor.get_actual_velocity() / 200.0;
+    v->current = v->motor->get_velocity() / 200.0;
 
 
     // calculate error in velocity
@@ -101,7 +101,7 @@ void doTBH(struct TBHValues* v){
     // Save last error
     v->last_error = v->error;
 
-    v->motor.move(127 * v->drive);
+    v->motor->set_voltage(12000.0 * v->drive);
 }
 
 void flywheelTask(){
@@ -116,7 +116,7 @@ void flywheelTask(){
             .first_cross = 1,
             .drive_at = 0,
             .drive_at_zero = 0,
-            .motor = flywheelBig
+            .motor = &flywheelBig
     };
     struct TBHValues smallWheel = {
             .error = 0,
@@ -129,11 +129,11 @@ void flywheelTask(){
             .first_cross = 1,
             .drive_at = 0,
             .drive_at_zero = 0,
-            .motor = flywheelSmall
+            .motor = &flywheelSmall
     };
     while(true){
         pros::lcd::print(0, "Small V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
-        pros::lcd::print(1, "Big V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
+        pros::lcd::print(1, "Big V: %f, T: %f", bigWheel.current * 3600, bigWheel.target * 3600);
         doTBH(&bigWheel);
         doTBH(&smallWheel);
         pros::delay(10);
@@ -166,6 +166,8 @@ void initialize() {
     pros::Task myTask(odomTask);
     pros::Task myFlywheelTask(flywheelTask);
     indexer.set_value(false);
+
+    sylib::initialize();
 }
 
 /**
@@ -387,8 +389,36 @@ double normRightY() {
 
 // }
 
+void opcontrol2(){
+// Create an addrled object
+    auto addrled = sylib::Addrled(22, 2, 26);
+ 
+    // Set the LED strip to a gradient in HSV color space
+    // that displays a full range of hues
+    //addrled.gradient(0xFF0000, 0xFFEE00, 4);
+ 
+    // Cycle the colors at speed 10
+    //addrled.cycle(*addrled, 10);
+
+    for(int i =0; i < 26; i++){
+        addrled.set_pixel(0XFF0000 + i * 0x0600, i);
+    }
+
+    
+    
+    // Store the time at the start of the loop
+    std::uint32_t clock = sylib::millis();
+    while (true) {
+        //printf("looping\n");
+        // 10ms delay to allow other tasks to run
+        //addrled.pulse(0x0000FF, 4, 52);
+        sylib::delay_until(&clock, 500);
+    }
+}
+
 float diagnosticTimer;
 void opcontrol() {
+    
 	//pros::delay(100);
 	//up.reset();
 	//sideways.reset();
@@ -396,7 +426,7 @@ void opcontrol() {
 	int progress = 0;
 	RobotControl robot1;
 	//AMT21 amt21_left(19, 0x58);
-	imu1.reset();
+	//imu1.reset();
 	while(imu1.is_calibrating()==true) {
 		pros::delay(20);
 	}
@@ -477,15 +507,15 @@ void opcontrol() {
         }*/
 
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-            //rpm_target += 50;
-            rpm_target = 3600;
+            rpm_target += 50;
+            //rpm_target = 3600;
         }
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
             rpm_target = 2900;
         }
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-            //rpm_target -= 50;
-            rpm_target = 0;
+            rpm_target -= 50;
+            //rpm_target = 0;
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){

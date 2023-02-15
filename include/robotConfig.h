@@ -21,8 +21,10 @@
     inline pros::Motor right_back0_mtr(3);
     inline pros::Motor right_back1_mtr(2);
 
-    inline pros::Motor flywheelBig(14);
-    inline pros::Motor flywheelSmall(15);
+    //inline pros::Motor flywheelBig(14);
+    inline sylib::Motor flywheelBig(14);
+    //inline pros::Motor flywheelSmall(15);
+    inline sylib::Motor flywheelSmall(15);
 
     inline pros::Motor intake(17, pros::E_MOTOR_GEAR_GREEN);
 	/*inline pros::Rotation right_encoder(21);
