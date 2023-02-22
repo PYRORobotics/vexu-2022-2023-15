@@ -42,3 +42,5 @@
     inline pros::ADIDigitalOut indexer ('E');
     inline pros::ADIDigitalOut endgame ('H');
 
+     inline Flywheel bigFlywheel(1);
+     inline Flywheel smallFlywheel(2);
