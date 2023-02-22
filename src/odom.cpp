@@ -8,6 +8,7 @@ using namespace okapi::literals;
 odom::odom() {
     printf("Odom Initialized");
     position = Cartesian(0_in, 0_in);
+    lastPosition = Cartesian(0_in, 0_in);
     previousRelativeY = up.get_value()*RLCONV;
     previousRelativeX = sideways.get_value()*YCONV;
     previousInert = imu1.get_heading()*1_deg;
@@ -40,6 +41,9 @@ void::odom::updateOdom() {
     double sideways_val = sideways.get_value();
     double heading = imu1.get_heading();
 
+    lastPosition = position;
+    lastTimestamp = currentTimestamp;
+
     yRelativeDelta = ((up1_val + up2_val)/2.0)*RLCONV - previousRelativeY;
     xRelativeDelta = sideways_val*YCONV - previousRelativeX;
     //robot relative
@@ -52,6 +56,8 @@ void::odom::updateOdom() {
     previousRelativeY = ((up1_val + up2_val)/2.0)*RLCONV;
     previousRelativeX = sideways_val*YCONV;
     previousInert = heading*1_deg;
+
+    currentTimestamp = pros::millis();
 
     // printf("yRelativeDelta: %lf\n", yRelativeDelta);
     // printf("xRelativeDelta: %lf\n", xRelativeDelta);
@@ -70,4 +76,13 @@ okapi::QLength odom::getX_position() {
 
 okapi::QLength odom::getY_position() {
     return position.y;
+}
+
+long odom::getTimestamp(){
+    return currentTimestamp;
+}
+
+Cartesian odom::deltaPositionNormalized(){
+    long deltaTime = currentTimestamp - lastTimestamp;
+    return Cartesian((position.x - lastPosition.x)/(double)deltaTime, (position.y - lastPosition.y)/(double)deltaTime);
 }

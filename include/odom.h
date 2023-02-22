@@ -17,16 +17,25 @@ class odom{
     okapi::QLength previousRelativeX;
     okapi::QLength previousRelativeY;
     okapi::QAngle odomAngle;
-    okapi::QAngle previousInert;    
+    okapi::QAngle previousInert;
+
 
     public:
     odom();
     Cartesian position;
+    Cartesian lastPosition;
+    long lastTimestamp = 0;
+    long currentTimestamp = 0;
     void resetOdom();
     void updateOdom();
     okapi::QLength getX_position();
     okapi::QLength getY_position();
     void printOdom();
+    long getTimestamp();
+
+    Cartesian deltaPositionNormalized();
+
+
 };
 
 #endif

@@ -13,6 +13,22 @@
 using okapi::inch;
 
 odom odom1;
+const Cartesian GOAL_POS(122.22, 122.22);
+
+int calcRPMForDistance(okapi::QLength dist){
+    double x = dist.convert(okapi::inch);
+    return 2014 + 7.55*x + 0.0222*(x*x);
+}
+
+int calcTimeMSForDistance(okapi::QLength dist){
+    double x = dist.convert(okapi::inch);
+    return 1000*(00474 + 0.0146*x - 4.98E-5 * (x*x));
+}
+
+okapi::QAngle calcAngleForRPM(int x){
+    return 1_deg * (41.0 - 0.0292 * x + 6.1E-6 * (x*x));
+}
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -111,7 +127,7 @@ void flywheelTask(){
             .last_error = 0,
             .target = rpm_target / 3600.0,
             .drive = 0,
-            .Kp = .02,
+            .Kp = .04,
             .drive_approx = .80, //78
             .first_cross = 1,
             .drive_at = 0,
@@ -124,7 +140,7 @@ void flywheelTask(){
             .last_error = 0,
             .target = rpm_target / 3600.0,
             .drive = 0,
-            .Kp = .02,
+            .Kp = .04,
             .drive_approx = .80, //78
             .first_cross = 1,
             .drive_at = 0,
@@ -188,10 +204,21 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+okapi::QAngle getAngleToPoint(Cartesian startPos, Cartesian targetPos){
+    Cartesian relativePos(targetPos.x - startPos.x, targetPos.y - startPos.y);
+    return relativePos.getHeading();
+}
+
+okapi::QLength getDistanceBetweenPoints(Cartesian startPos, Cartesian targetPos){
+    Cartesian relativePos(targetPos.x - startPos.x, targetPos.y - startPos.y);
+    return relativePos.getMagnitude();
+}
+
 void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.5){
     //Cartesian absoluteGoalPos(122.22_in, 122.22_in);
-    Cartesian relativeGoalPos(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
-    okapi::QAngle deltaAngle = relativeGoalPos.getHeading() - (imu1.get_heading() * 1_deg);
+    //Cartesian relativeGoalPos(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
+    okapi::QAngle absoluteAngle = getAngleToPoint(odom1.position, pointToFace);
+    okapi::QAngle deltaAngle = absoluteAngle + 180_deg - (imu1.get_heading() * 1_deg);
     okapi::QAngle derivativeAngle = 0_deg;
     okapi::QAngle lastAngle = deltaAngle;
     printf("dA= %f\n", deltaAngle.convert(okapi::degree));
@@ -201,8 +228,9 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
     double kD = 9.0;
     int counter = 0;
     while((abs(deltaAngle.convert(okapi::degree)) > threshold || abs(derivativeAngle.convert(okapi::degree)) > 0.01) && !(master.get_digital(pros::E_CONTROLLER_DIGITAL_B))){
-        relativeGoalPos = Cartesian(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
-        deltaAngle = relativeGoalPos.getHeading() + 180_deg - (imu1.get_heading() * 1_deg);
+        //relativeGoalPos = Cartesian(pointToFace.x - odom1.getX_position(), pointToFace.y - odom1.getY_position());
+        absoluteAngle = getAngleToPoint(odom1.position, pointToFace);
+        deltaAngle = absoluteAngle + 180_deg - (imu1.get_heading() * 1_deg);
         if(deltaAngle > 180_deg)
             deltaAngle -= 180_deg;
 
@@ -438,11 +466,8 @@ void opcontrol() {
 	double drivePow=0;
 	//pros::Motor intake ();
 	while (true) {
-		//pros::lcd::print(0, "AMT21_left value: %d", amt21_left.get_value());
-        /*pros::lcd::print(2, "AMT21_right value: %d", up.get_value());
-        pros::lcd::print(3, "AMT21_left value: %d", up2.get_value());
-        pros::lcd::print(4, "AMT21_middle value: %d", sideways.get_value());*/
-        //pros::lcd::print(6, "Response time: %ld micros", pros::micros() - start);
+        pros::lcd::print(2, "Distance: %f", getDistanceBetweenPoints(odom1.position, GOAL_POS).convert(okapi::inch));
+        pros::lcd::print(3, "Delta heading: %f", ((imu1.get_heading() * 1_deg) - getAngleToPoint(odom1.position, GOAL_POS) - 180_deg).convert(okapi::degree));
         pros::lcd::print(6, "heading_inertial: %f", imu2.get_heading());
         pros::lcd::print(7, "heading_navx: %f", imu1.get_heading());
 		//odom1.updateOdom();
@@ -469,15 +494,29 @@ void opcontrol() {
             printf("average: %f\n", (up.get_value() + up2.get_value())/2.0);
 			printf("sideways: %d\n", sideways.get_value());*/
             diagnosticTimer = pros::millis();
-			//odom1.printOdom();
+			odom1.printOdom();
 		}
 		// robot1.absStrafe(headingInput, magn, turn*1);
 
-        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-            headingInput += 180_deg;
-        }
 
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)==true) {
+        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+            okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1.position, GOAL_POS);
+            int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
+            //900ms assumed flight time
+            Cartesian deltaPos = odom1.deltaPositionNormalized();
+            Cartesian deltaPosFudged = deltaPos;
+            //deltaPosFudged.scale(700);
+            deltaPosFudged.scale(flightTimeMS);
+
+            Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1.position.x, deltaPosFudged.y + odom1.position.y);
+            okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged, GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+            //Cartesian targetPoint =
+            rpm_target = calcRPMForDistance(distFudged);
+            okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
+            okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+            robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
+        }
+		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
 			/*drivePow = odom1.position.getMagnitude().convert(okapi::inch)*30;
 			if (drivePow>100) {
 				drivePow = 100;
@@ -485,7 +524,11 @@ void opcontrol() {
 			robotHeading = 0_rad;
 			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	*/
 		} else {
-			robot1.absStrafe(headingInput, magn, normRightX());
+            double turnVal = normRightX();
+            if (fabs(turnVal) < 8){
+                turnVal = 0;
+            }
+			robot1.absStrafe(headingInput, magn, turnVal);
             //robot1.
 		}
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
@@ -541,7 +584,7 @@ void opcontrol() {
 //        }
 
         if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            facePoint(&robot1, Cartesian(122.22, 122.22));
+            facePoint(&robot1, GOAL_POS);
         }
 
         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){

@@ -12,7 +12,8 @@ public:
 
     void absStrafe(okapi::QAngle absHeading, double pow, double turn);
 
-    constexpr static const float driveHeading_kP = 2;
+    //constexpr static const float driveHeading_kP = 2;
+    constexpr static const float driveHeading_kP = 5;
 
     void headingStrafe(okapi::QAngle driveHeading, double pow, okapi::QAngle turnHeading);
 
