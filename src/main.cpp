@@ -385,16 +385,16 @@ void autonomous() {
  */
 
 double normLeftX() { 
-	return pow(master.get_analog(ANALOG_LEFT_X)/1.27, 3);
+	return master.get_analog(ANALOG_LEFT_X)/1.27;
 }
 double normLeftY() {
-	return pow(master.get_analog(ANALOG_LEFT_Y)/1.27, 3);
+	return master.get_analog(ANALOG_LEFT_Y)/1.27;
 }
 double normRightX() {
-	return pow(master.get_analog(ANALOG_RIGHT_X)/1.27, 3);
+	return master.get_analog(ANALOG_RIGHT_X)/1.27;
 }
 double normRightY() {
-	return pow(master.get_analog(ANALOG_RIGHT_Y)/1.27, 3);
+	return master.get_analog(ANALOG_RIGHT_Y)/1.27;
 }
 
 
@@ -478,7 +478,7 @@ void opcontrol() {
 		okapi::QAngle headingInput = stick1.getHeading() + (imu1.get_heading() * 1_deg);
 		double magn = pow((x*x+y*y), 0.5);
 		if(fabs(normRightX())>5) {
-			robotHeading = robotHeading+normRightX()*.06_deg;
+			robotHeading += normRightX()*.06_deg;
 		}
 		if((fabs(normRightX())<=5)&&(fabs(robotHeading.convert(okapi::degree)-imu1.get_heading())>50)) {
 			robotHeading = imu1.get_heading()*1_deg;
@@ -524,7 +524,7 @@ void opcontrol() {
 			robotHeading = 0_rad;
 			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	*/
 		} else {
-            double turnVal = normRightX();
+            double turnVal = pow(normRightX(), 3);
             if (fabs(turnVal) < 8){
                 turnVal = 0;
             }
