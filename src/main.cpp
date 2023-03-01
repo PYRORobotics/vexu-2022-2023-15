@@ -385,16 +385,16 @@ void autonomous() {
  */
 
 double normLeftX() { 
-	return master.get_analog(ANALOG_LEFT_X)/1.27;
+	return pow(master.get_analog(ANALOG_LEFT_X)/1.27, 3);
 }
 double normLeftY() {
-	return master.get_analog(ANALOG_LEFT_Y)/1.27;
+	return pow(master.get_analog(ANALOG_LEFT_Y)/1.27, 3);
 }
 double normRightX() {
-	return master.get_analog(ANALOG_RIGHT_X)/1.27;
+	return pow(master.get_analog(ANALOG_RIGHT_X)/1.27, 3);
 }
 double normRightY() {
-	return master.get_analog(ANALOG_RIGHT_Y)/1.27;
+	return pow(master.get_analog(ANALOG_RIGHT_Y)/1.27, 3);
 }
 
 
