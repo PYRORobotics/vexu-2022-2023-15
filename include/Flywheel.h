@@ -1,7 +1,7 @@
 #include "main.h"
 #include "../src/arduino-comms.h"
 
-class flywheel {
+class Flywheel {
     private:
         double error = 0;
         double current = 0;
@@ -16,7 +16,7 @@ class flywheel {
         sylib::Motor* motor;
     
     public:
-        flywheel(int port);
+        Flywheel(int port);
         void set_target(double rpm_target);
         double get_target();
         void doTBH();

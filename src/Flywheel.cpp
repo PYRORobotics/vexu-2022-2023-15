@@ -1,21 +1,21 @@
 #include "flywheel.h"
 
-flywheel::flywheel(int port) {
+Flywheel::Flywheel(int port) {
 
 }
 
-void flywheel::set_target(double rpm_target) { target = rpm_target / 3600.0; }
+void Flywheel::set_target(double rpm_target) { target = rpm_target / 3600.0; }
 
-double flywheel::get_target() { return target; }
+double Flywheel::get_target() { return target; }
 
-bool flywheel::sgn(double num) {
+bool Flywheel::sgn(double num) {
     if(num > 0)
         return true;
     else
         return false;
 }
 
-void flywheel::doTBH() {
+void Flywheel::doTBH() {
 
     current = motor->get_velocity() / 200.0;
 

@@ -9,6 +9,7 @@
 #include "polar.h"
 #include "odom.h"
 #include "path.h"
+#include "flywheel.h"
 
 using okapi::inch;
 
@@ -56,20 +57,6 @@ void odomTask(){
 
 int rpm_target = 0;
 
-struct Flywheel {
-double error = 0;
-double current = 0;
-double last_error = 0;
-double target = rpm_target / 3600.0;
-double drive = 0;
-double Kp = .02;
-double drive_approx = .80; //78
-int first_cross = 1;
-double drive_at = 0;
-double drive_at_zero = 0;
-sylib::Motor* motor;
-};
-
 bool sgn(double num) {
     if(num > 0)
         return true;
@@ -77,79 +64,15 @@ bool sgn(double num) {
         return false;
 }
 
-void doTBH(struct Flywheel* v){
-    v->target = rpm_target / 3600.0;
+void flywheelTask() {
+    Flywheel bigFlywheel(13); //placeholder port
+    Flywheel smallFlywheel(14); //placeholder port
 
-    v->current = v->motor->get_velocity() / 200.0;
-
-
-    // calculate error in velocity
-    // target is desired velocity
-    // current is measured velocity
-    v->error = v->target - v->current;
-
-    // Use Kp as gain
-    v->drive = v->drive + (v->error * v->Kp);
-
-    // Clip - we are only going forwards
-    if(v->drive > 1 )
-        v->drive = 1;
-    if(v->drive < 0 )
-        v->drive = 0;
-
-    // Check for zero crossing
-    if(sgn(v->error) != sgn(v->last_error) ) {
-        // First zero crossing after a new set velocity command
-        if( v->first_cross ) {
-            // Set drive to the open loop approximation
-            v->drive = v->drive_approx;
-            v->first_cross = 0;
-        }
-        else
-            v->drive = 0.5 * ( v->drive + v->drive_at_zero );
-
-        // Save this drive value in the "tbh" variable
-        v->drive_at_zero = v->drive;
-    }
-
-    // Save last error
-    v->last_error = v->error;
-
-    v->motor->set_voltage(12000.0 * v->drive);
-}
-
-void flywheelTask(){
-    // struct Flywheel bigWheel = {
-    //         .error = 0,
-    //         .current = 0,
-    //         .last_error = 0,
-    //         .target = rpm_target / 3600.0,
-    //         .drive = 0,
-    //         .Kp = .04,
-    //         .drive_approx = .80, //78
-    //         .first_cross = 1,
-    //         .drive_at = 0,
-    //         .drive_at_zero = 0,
-    //         .motor = &flywheelBig
-    // };
-    // struct Flywheel smallWheel = {
-    //         .error = 0,
-    //         .current = 0,
-    //         .last_error = 0,
-    //         .target = rpm_target / 3600.0,
-    //         .drive = 0,
-    //         .Kp = .04,
-    //         .drive_approx = .80, //78
-    //         .first_cross = 1,
-    //         .drive_at = 0,
-    //         .drive_at_zero = 0,
-    //         .motor = &flywheelSmall
-    // };
     while(true) {
-        pros::lcd::print(0, "Small V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
-        pros::lcd::print(1, "Big V: %f, T: %f", bigWheel.current * 3600, bigWheel.target * 3600);
-        doTBH(&bigWheel);
-        doTBH(&smallWheel);
+        bigFlywheel.set_target(rpm_target/3600.0);
+        bigFlywheel.doTBH();
+        smallFlywheel.set_target(rpm_target/3600.0);
+        smallFlywheel.doTBH();
         pros::delay(10);
     }
 }
@@ -427,8 +350,7 @@ void opcontrol() {
             okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
             robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
         }
-		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-		}
+		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {}
         else {
             double turnVal = normRightX();
             if (fabs(turnVal) < 8){
