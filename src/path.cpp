@@ -1,4 +1,4 @@
-#include "path.h"
+#include "../include/path.h"
 #include "polar.h"
 #include "robotPose.h"
 #include "cartesian.h"
@@ -32,7 +32,10 @@ robotPose Path::interpolateBtw(robotPose p1, robotPose p2, double progress) {
 robotPose Path::qbezier(robotPose p1, robotPose p2, robotPose p3, double progress) {
     Cartesian output = interpolateBtw( interpolateBtw(p1.position,p2.position,progress),interpolateBtw(p2.position,p3.position,progress),progress);
         return robotPose(output, p1.heading*(1-progress)+p3.heading*(progress));
-    
+}
+robotPose Path::cbezier(roborPose p1, robotPose p1, robotPose p3, robotPose p4, double progress) {
+    Cartesian output = interpolateBtw(this->qbezier(p1,p2,p3,progress), this->qbezier(p2,p3,p4,progress));
+    return robotPose(output, p1.heading*(1-progress)+ p3.heading*(progress));
 }
 
 std::vector<robotPose> Path::generateStraightPath(robotPose point1, robotPose point2, int points) {
@@ -72,7 +75,7 @@ std::vector<robotPose> Path::qbezierAutomaticHeading(robotPose start, robotPose 
     p_now.scale(-1);
     p_to.add(p_now);
     while(points > counter) {
-        //check where the bot is looking within one quadrent
+        //check where the bot is looking within one quadrant
         if(p_to.x == 0_in && p_to.y == 0_in){
             heading = offset;
         }
@@ -92,4 +95,15 @@ std::vector<robotPose> Path::qbezierAutomaticHeading(robotPose start, robotPose 
     }
     return output;
 }
-//IDK HOW TO PROPERLY USE OKAPI
+//IDK HOW TO PROPERLY USE OKAPI /SMILE :)
+
+std::vector<robotPose> Path::cbezierManualHeading(robotPose start, robotPose controlPoint1, robotPose controlPoint2, robotPose endPoint, int points) {
+    std::vector<robotPose> output;
+    double stepsize = 1.0/points;
+    double progress = 0.0;
+    for(int i = 0; i < points; i++){
+        output.push_back(this->cbezier(start, controlPoint1, controlPoint2, endPoint, progress));
+        progress += stepsize;
+    }
+    return output;
+}

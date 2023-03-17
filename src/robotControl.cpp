@@ -1,5 +1,5 @@
 #include "main.h"
-#include "robotControl.h"
+#include "../include/robotControl.h"
 #include "okapi/api/units/QAngle.hpp"
 using namespace okapi::literals;
 
@@ -36,7 +36,6 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 	right_back0_mtr = -((straightPow - turnPow + strafePow)*scale);
 	right_back1_mtr = -((straightPow - turnPow + strafePow)*scale);
 }
-
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {
 	double straight = pow*cos(relHeading.convert(okapi::radian));
 	double strafe = pow*sin(relHeading.convert(okapi::radian));
@@ -99,8 +98,29 @@ void RobotControl::goToCharles(odom *odom1, robotPose robotPose, okapi::QLength 
         pros::delay(10);
     }
 }
-
-
+void RobotControl::goTo(odom *odom1, robotPose robotPose, okapi::QLength follow_Dist) {
+    double drivePow;
+    Cartesian delta(robotPose.position.x - odom1->position.x, robotPose.position.y - odom1->position.y);
+    int i = 0;
+    while(delta.getMagnitude() >= (follow_Dist)) {
+        delta.x = (robotPose.position.x - odom1->position.x);
+        delta.y = (robotPose.position.y - odom1->position.y);
+        drivePow = delta.getMagnitude().convert(okapi::inch) * 30; // basic as heck P loop
+        if(drivePow > 100){
+            drivePow = 100;
+        }
+        this->headingStrafe(delta.getHeading()+0_deg, drivePow * 1.0, (robotPose.heading);
+        pros::delay(10);
+    }
+}
+void followCurve(odom *odom, std::vector<robotPose> curve, okapi::Qlength follow_Dist) {
+    robotPose point;
+    for(int i = 1; i < curve.size(); i++) {
+        point = curve.at(i);
+        this->goTo(odom, point, follow_Dist);
+    }
+}
+/*
 //auton p looper, goes to position given and faces the bot tword heading, if you do not specify an angle the robot will face 0_rad.
 void RobotControl::goTo(odom odom1, robotPose robotPose, uint8_t follow_Dist) {
 	Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
@@ -143,4 +163,4 @@ void RobotControl::goTo(odom odom1, Cartesian to_Cartesian, uint8_t follow_Dist)
 		}
 		this->headingStrafe(to_Polar.angle+180_deg, drivePow * .3 , 0_rad);
 	}
-}
+}*/

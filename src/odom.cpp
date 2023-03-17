@@ -1,5 +1,5 @@
 #include "main.h"
-#include "odom.h"
+#include "../include/odom.h"
 #include "okapi/api/units/QAngle.hpp"
 #include "cartesian.h"
 #include "polar.h"

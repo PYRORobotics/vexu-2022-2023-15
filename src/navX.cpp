@@ -3,7 +3,6 @@
 navX::navX(int port) : arduino(port) {
 
 }
-
 void navX::initialize() {
     arduino.initialize();
     pros::delay(100);

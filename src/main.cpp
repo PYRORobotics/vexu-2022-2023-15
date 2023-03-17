@@ -4,11 +4,11 @@
 #include "okapi/impl/device/rotarysensor/IMU.hpp"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
-#include "robotControl.h"
+#include "../include/robotControl.h"
 #include "cartesian.h"
 #include "polar.h"
-#include "odom.h"
-#include "path.h"
+#include "../include/odom.h"
+#include "../include/path.h"
 
 using okapi::inch;
 
@@ -262,6 +262,7 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+ Path::;
 void autonomous() {
 	RobotControl robot1;
 	imu1.reset();
@@ -532,7 +533,8 @@ void opcontrol() {
             //robot1.
 		}
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-			odom1.resetOdom();
+			//odom1.resetOdom();
+            robot1.followCurve(&odom1, Test,8_in);
 		}
 //		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 //			//intake.move(12);
