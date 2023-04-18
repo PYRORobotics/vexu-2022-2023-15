@@ -12,12 +12,13 @@
 class Cartesian;
 class RobotPose;
 class Path{
-    private: 
+private:
     static Cartesian interpolateBtw(Cartesian p1, Cartesian p2, double progress);
     static robotPose interpolateBtw(robotPose p1, robotPose p2, double progress);
     static robotPose qbezier(robotPose p1, robotPose p2, robotPose p3, double progress);
     static robotPose cbezier(robotPose p1, robotPose p2, robotPose p3, robotPose p4, double progress);
-    public:
+
+public:
     Path(); 
     Path(std::vector<robotPose>);
     static std::vector<robotPose> path1;
@@ -27,6 +28,7 @@ class Path{
     //robot points towards direction of travel, with an option of applying an offset
     static  std::vector<robotPose> qbezierAutomaticHeading(robotPose start, robotPose controlPoint, robotPose endPoint, int points, okapi::QAngle offset);
     static std::vector<robotPose> cbezierManualHeading(robotPose start, robotPose controlPoint1, robotPose controlPoint2, robotPose endpoint, int points);
+    void add_to_path(std::vector<robotPose> input);
 };
 
 #endif

@@ -6,7 +6,7 @@ using std::vector;
 
 Path::Path() {}
 Path::Path(std::vector<robotPose> input) {
-    this->path1 = input;
+    path1 = input;
 }
 //returns a cartesian between the two input points, 0 is at p1, 1 is at p2
 Cartesian Path::interpolateBtw(Cartesian p1, Cartesian p2, double progress) {
@@ -33,8 +33,8 @@ robotPose Path::qbezier(robotPose p1, robotPose p2, robotPose p3, double progres
     Cartesian output = interpolateBtw( interpolateBtw(p1.position,p2.position,progress),interpolateBtw(p2.position,p3.position,progress),progress);
         return robotPose(output, p1.heading*(1-progress)+p3.heading*(progress));
 }
-robotPose Path::cbezier(roborPose p1, robotPose p1, robotPose p3, robotPose p4, double progress) {
-    Cartesian output = interpolateBtw(this->qbezier(p1,p2,p3,progress), this->qbezier(p2,p3,p4,progress));
+robotPose Path::cbezier(robotPose p1, robotPose p2, robotPose p3, robotPose p4, double progress) {
+    Cartesian output = interpolateBtw(qbezier(p1,p2,p3,progress).position , qbezier(p2,p3,p4,progress).position , progress);
     return robotPose(output, p1.heading*(1-progress)+ p3.heading*(progress));
 }
 
@@ -59,7 +59,7 @@ std::vector<robotPose> Path::qbezierManualHeading(robotPose start, robotPose con
     while(points > counter) {
         output.push_back(qbezier(start, controlPoint, endPoint, progress));
         counter++;
-        progress += stepsize;
+        progress = progress + stepsize;
     }
     return output;
 }
@@ -102,7 +102,7 @@ std::vector<robotPose> Path::cbezierManualHeading(robotPose start, robotPose con
     double stepsize = 1.0/points;
     double progress = 0.0;
     for(int i = 0; i < points; i++){
-        output.push_back(this->cbezier(start, controlPoint1, controlPoint2, endPoint, progress));
+        output.push_back(cbezier(start, controlPoint1, controlPoint2, endPoint, progress));
         progress += stepsize;
     }
     return output;

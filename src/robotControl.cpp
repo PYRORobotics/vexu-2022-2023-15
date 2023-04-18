@@ -38,7 +38,7 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 }
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {
 	double straight = pow*cos(relHeading.convert(okapi::radian));
-	double strafe = pow*sin(relHeading.convert(okapi::radian));
+	double strafe = -(pow*sin(relHeading.convert(okapi::radian)));
 	this->raw_tank(straight, turn, strafe);
 }
 
@@ -71,7 +71,6 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 	}
 }
 void RobotControl::goToCharles(odom *odom1, robotPose robotPose, okapi::QLength threshold) {
-    //Cartesian current_pos(odom1.getX_position() , odom1.getY_position());
     double drivePow;
     Cartesian delta(robotPose.position.x - odom1->position.x, robotPose.position.y - odom1->position.y);
     int i = 0;
@@ -100,24 +99,30 @@ void RobotControl::goToCharles(odom *odom1, robotPose robotPose, okapi::QLength 
 }
 void RobotControl::goTo(odom *odom1, robotPose robotPose, okapi::QLength follow_Dist) {
     double drivePow;
-    Cartesian delta(robotPose.position.x - odom1->position.x, robotPose.position.y - odom1->position.y);
     int i = 0;
+    Cartesian delta(robotPose.position.x - odom1->position.x, robotPose.position.y - odom1->position.y);
     while(delta.getMagnitude() >= (follow_Dist)) {
         delta.x = (robotPose.position.x - odom1->position.x);
         delta.y = (robotPose.position.y - odom1->position.y);
-        drivePow = delta.getMagnitude().convert(okapi::inch) * 30; // basic as heck P loop
+        drivePow = delta.getMagnitude().convert(okapi::inch) * 30;
         if(drivePow > 100){
             drivePow = 100;
         }
-        this->headingStrafe(delta.getHeading()+0_deg, drivePow * 1.0, (robotPose.heading);
+        this->headingStrafe(delta.getHeading()+0_deg, drivePow * 1.0, (robotPose.heading));
+        if(i%100 == 0){
+            printf("Dmag: %f\n", delta.getMagnitude().convert(okapi::inch));
+            printf("Angle: %f" , imu1.get_heading());
+            odom1->printOdom();
+            //printf("Ox: %f\n", odom1.position.x.convert(okapi::inch));
+            //printf("Oy: %f\n", odom1.position.y.convert(okapi::inch));
+        }
+        i++;
         pros::delay(10);
     }
 }
-void followCurve(odom *odom, std::vector<robotPose> curve, okapi::Qlength follow_Dist) {
-    robotPose point;
-    for(int i = 1; i < curve.size(); i++) {
-        point = curve.at(i);
-        this->goTo(odom, point, follow_Dist);
+void RobotControl::followCurve(odom *odom, std::vector<robotPose> path, okapi::QLength follow_Dist) {
+    for(int i = 0; i < path.size(); i++) {
+        this->goTo(odom, path.at(i), follow_Dist);
     }
 }
 /*

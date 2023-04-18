@@ -16,10 +16,6 @@ Cartesian::Cartesian(Polar point) {
     x = point.magnitude*sin(point.angle.convert(okapi::radian));
     y = point.magnitude*cos(point.angle.convert(okapi::radian));
 }
-
-Cartesian::Bruh(){
-
-}
 //ASSUMES INCHES 
 Cartesian::Cartesian(double x, double y) {
     this->x=x*1_in;

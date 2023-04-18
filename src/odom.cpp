@@ -81,7 +81,6 @@ okapi::QLength odom::getY_position() {
 long odom::getTimestamp(){
     return currentTimestamp;
 }
-
 Cartesian odom::deltaPositionNormalized(){
     long deltaTime = currentTimestamp - lastTimestamp;
     return Cartesian((position.x - lastPosition.x)/(double)deltaTime, (position.y - lastPosition.y)/(double)deltaTime);

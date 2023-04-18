@@ -20,7 +20,7 @@ public:
     constexpr static const float powerMod = 0.3;
     double timer;
 
-    void goTo(odom *odom1, robotPose robotPose, okapi::QLength follow_Dist, okapi::QLength)
+    void goTo(odom *odom1, robotPose robotPose, okapi::QLength follow_Dist);
 
     void goTo(odom odom1, Cartesian to_Cartesian, int follow_Dist);
 
@@ -28,6 +28,6 @@ public:
 
     void goToCharles(odom *odom1, robotPose robotPose, okapi::QLength threshold);
 
-    void followCurve(odom *odom, std::vector<robotPose>, okapi::QLength follow_Dist);
+    void followCurve(odom *odom, std::vector<robotPose> path, okapi::QLength follow_Dist);
 };
 #endif

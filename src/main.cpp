@@ -4,11 +4,11 @@
 #include "okapi/impl/device/rotarysensor/IMU.hpp"
 #include "pros/misc.h"
 #include "pros/rtos.hpp"
-#include "../include/robotControl.h"
+#include "robotControl.h"
 #include "cartesian.h"
 #include "polar.h"
-#include "../include/odom.h"
-#include "../include/path.h"
+#include "odom.h"
+#include "path.h"
 
 using okapi::inch;
 
@@ -174,11 +174,12 @@ void initialize() {
     up2.reset();
     sideways.reset();
     imu1.initialize();
+    imu1.reset();
     pros::delay(100);
     odom1 = odom();
 
-    odom1.position = Cartesian(88.5_in, 7.5_in);
-
+    odom1.position = Cartesian(114_in, 9_in);
+    //odom1.position = Cartesian(0.0_in,0.0_in);
     pros::Task myTask(odomTask);
     pros::Task myFlywheelTask(flywheelTask);
     indexer.set_value(false);
@@ -262,11 +263,10 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
- Path::;
 void autonomous() {
 	RobotControl robot1;
 	imu1.reset();
-	while(imu1.is_calibrating()==true) {
+	while(imu1.is_calibrating()) {
 		pros::delay(20);
 	}
 	pros::delay(100);
@@ -447,11 +447,33 @@ void opcontrol2(){
 
 float diagnosticTimer;
 void opcontrol() {
-    
 	//pros::delay(100);
 	//up.reset();
 	//sideways.reset();
-	std::vector<robotPose> Test = Path::qbezierManualHeading(robotPose(Cartesian(0.0,0.0) , okapi::QAngle(0.0)) , robotPose(Cartesian(12.0, 120.0) , okapi::QAngle(180.0)) , robotPose(Cartesian(24.0,0.0) , okapi::QAngle(180.0)) , 190);
+	std::vector<robotPose> start_to_Roller2 = Path::qbezierManualHeading(
+            robotPose(Cartesian(114.0_in, 7.5_in) ,
+              okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(114.0_in , 24.0_in) ,
+              okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(136.0_in , 30.0_in) ,
+              okapi::QAngle(0.0)),
+           25);
+    std::vector<robotPose> Roller2_to_Roller3 = Path::qbezierManualHeading(
+            robotPose(Cartesian(136.0_in , 30.0_in) ,
+                      okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(80.0_in, 100.0_in) ,
+                      okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(8.0_in, 114.0_in) ,
+                      okapi::QAngle(0.0)),
+                      100);
+    std::vector<robotPose> Roller3_to_Roller4 = Path::qbezierManualHeading(
+            robotPose(Cartesian(8_in, 114_in) ,
+                      okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(30.0_in , 114.0_in) ,
+                      okapi::QAngle(0.0)) ,
+            robotPose(Cartesian(30.0_in  , 137.0_in) ,
+                      okapi::QAngle(0.0)),
+                      25);
 	int progress = 0;
 	RobotControl robot1;
 	//AMT21 amt21_left(19, 0x58);
@@ -534,7 +556,11 @@ void opcontrol() {
 		}
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
 			//odom1.resetOdom();
-            robot1.followCurve(&odom1, Test,8_in);
+            //robot1.goToCharles(&odom1 , robotPose(114_in,7.5_in ,0_deg), 8_in);
+            robot1.followCurve(&odom1,start_to_Roller2, 4_in);
+            robot1.followCurve(&odom1, Roller2_to_Roller3,8_in);
+            robot1.followCurve(&odom1, Roller3_to_Roller4,4_in);
+            //robot1.followCurve(&odom1, Test.path1, 8_in);
 		}
 //		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
 //			//intake.move(12);

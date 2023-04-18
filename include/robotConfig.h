@@ -35,8 +35,8 @@
 	//inline pros::ADIEncoder up('a', 'b', true);
 	//inline pros::ADIEncoder sideways('c', 'd', false);
 	inline AMT21 up(13, 0x5c,false);
-    inline AMT21 up2(19, 0x58, true);
-	inline AMT21 sideways(11, 0x54, true);
+    inline AMT21 up2(11, 0x58, true);
+	inline AMT21 sideways(19, 0x54, true);
     inline pros::Controller master(pros::E_CONTROLLER_MASTER);
 
     inline pros::ADIDigitalOut indexer ('E');
