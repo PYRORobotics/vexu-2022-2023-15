@@ -82,7 +82,7 @@ bool sgn(double num) {
 void doTBH(struct TBHValues* v){
     v->target = rpm_target / 3600.0;
 
-    v->current = v->motor->get_velocity() / 200.0;
+    v->current = -v->motor->get_velocity() / 200.0;
 
 
     // calculate error in velocity
@@ -117,8 +117,8 @@ void doTBH(struct TBHValues* v){
     // Save last error
     v->last_error = v->error;
 
-    v->motor->set_voltage(12000.0 * v->drive);
-    flywheelSmall.set_voltage(-12000.0 * v->drive);
+    v->motor->set_voltage(-12000.0 * v->drive);
+    flywheelSmall.set_voltage(12000.0 * v->drive);
 }
 
 void flywheelTask(){
@@ -179,7 +179,7 @@ void initialize() {
     pros::delay(100);
     odom1 = odom();
 
-    odom1.position = Cartesian(114_in, 9_in);
+    odom1.position = Cartesian(86.5_in , 7.5_in);
     //odom1.position = Cartesian(0.0_in,0.0_in);
     pros::Task myTask(odomTask);
     pros::Task myFlywheelTask(flywheelTask);
@@ -265,6 +265,38 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
  * from where it left off.
  */
 void autonomous() {
+    std::vector <robotPose> start_to_3stack = Path::cbezierManualHeading(
+            robotPose(Cartesian(86.5_in , 7.5_in), okapi::QAngle(0.0)),
+            robotPose (Cartesian(  86.5_in, 12_in ), okapi::QAngle(0.0)),
+            robotPose (Cartesian(  120_in, 10_in ), okapi::QAngle(0.0)),
+            robotPose(Cartesian(107.0_in , 36_in), okapi::QAngle(0.0)),
+            20);
+    std::vector <robotPose> stack3_to_start3Pickup = Path::qbezierManualHeading(
+            robotPose(Cartesian(107.0_in , 36.0_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(100.0_in, 30.0_in),
+                      okapi::QAngle(340.0)),
+            robotPose(Cartesian(95.0_in, 26.0_in),
+                      okapi::QAngle(320.0)),
+            35);
+    std::vector <robotPose> start3Pickup_to_end3Pickup = Path::generateStraightPath(
+            robotPose(Cartesian(95.0_in, 26.0_in),
+                      okapi::QAngle(320.0)),
+            robotPose(Cartesian(63.0_in , 49.0_in),
+                      okapi::QAngle(320.0)),
+            25);
+    std::vector <robotPose> stack3_to_Roller = Path::generateStraightPath(
+            robotPose(Cartesian(107.0_in , 36.0_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(108.0_in, 7.5_in),
+                      okapi::QAngle(180.0)),
+            20);
+    std::vector <robotPose> Roller_to_start3Pickup = Path::generateStraightPath(
+            robotPose(Cartesian(108.0_in , 7.5_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(95.0_in, 26.0_in),
+                      okapi::QAngle(330.0)),
+            20);
 	RobotControl robot1;
 	imu1.reset();
 	while(imu1.is_calibrating()) {
@@ -273,41 +305,46 @@ void autonomous() {
 	pros::delay(100);
     if(true) { //true for match auto, false for skills auto
 
-        robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 12_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
+        robot1.followCurve(&odom1, start_to_3stack, 5_in);
 
-        pros::delay(500);
-        intake.move_relative(-120, 300);
-        pros::delay(2000);
-        //while(!intake.is_stopped()){
-        //    pros::delay(10);
-        //}
+        robot1.followCurve( &odom1, stack3_to_start3Pickup, 5_in);
 
-        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
-
-        facePoint(&robot1, Cartesian(122.22, 122.22));
-
-        rpm_target = 3150;
-        pros::delay(5000);
-//        indexer.set_value(true); //shoot first disc
-        pros::delay(1000);
-//        indexer.set_value(false);
-        pros::delay(1500);
-
-        robot1.goToCharles(&odom1, robotPose(106_in, 10_in, 180_deg), 1_in);
-        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
-
-        //pros::delay(500);
-        facePoint(&robot1, Cartesian(122.22, 122.22));
-        pros::delay(1000);
-
-//        indexer.set_value(true);
+        robot1.followCurve(&odom1, start3Pickup_to_end3Pickup, 5_in);
+//        robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
+//        robot1.goToCharles(&odom1, robotPose(112_in, 12_in, 180_deg), 1_in);
+//        robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
+//
+//        pros::delay(500);
+//        intake.move_relative(-120, 300);
+//        pros::delay(2000);
+//        //while(!intake.is_stopped()){
+//        //    pros::delay(10);
+//        //}
+//
+//        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
+//
+//        facePoint(&robot1, Cartesian(122.22, 122.22));
+//
+//        rpm_target = 3150;
+//        pros::delay(5000);
+////        indexer.set_value(true); //shoot first disc
+//        pros::delay(1000);
+////        indexer.set_value(false);
 //        pros::delay(1500);
-//        indexer.set_value(false);
-//        pros::delay(1500);
-
-        rpm_target = 0;
+//
+//        robot1.goToCharles(&odom1, robotPose(106_in, 10_in, 180_deg), 1_in);
+//        robot1.goToCharles(&odom1, robotPose(106_in, 16_in, 180_deg), 1_in);
+//
+//        //pros::delay(500);
+//        facePoint(&robot1, Cartesian(122.22, 122.22));
+//        pros::delay(1000);
+//
+////        indexer.set_value(true);
+////        pros::delay(1500);
+////        indexer.set_value(false);
+////        pros::delay(1500);
+//
+//        rpm_target = 0;
     } else{
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
         robot1.goToCharles(&odom1, robotPose(111_in, 13_in, 180_deg), 1_in);
@@ -450,30 +487,6 @@ void opcontrol() {
     //pros::delay(100);
     //up.reset();
     //sideways.reset();
-    std::vector <robotPose> start_to_Roller2 = Path::qbezierManualHeading(
-            robotPose(Cartesian(114.0_in, 7.5_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(114.0_in, 24.0_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(136.0_in, 30.0_in),
-                      okapi::QAngle(0.0)),
-            25);
-    std::vector <robotPose> Roller2_to_Roller3 = Path::qbezierManualHeading(
-            robotPose(Cartesian(136.0_in, 30.0_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(80.0_in, 100.0_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(8.0_in, 114.0_in),
-                      okapi::QAngle(0.0)),
-            100);
-    std::vector <robotPose> Roller3_to_Roller4 = Path::qbezierManualHeading(
-            robotPose(Cartesian(8_in, 114_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(30.0_in, 114.0_in),
-                      okapi::QAngle(0.0)),
-            robotPose(Cartesian(30.0_in, 137.0_in),
-                      okapi::QAngle(0.0)),
-            25);
     int progress = 0;
     RobotControl robot1;
     //AMT21 amt21_left(19, 0x58);
@@ -552,7 +565,7 @@ void opcontrol() {
             //robot1.
         }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            roller = 256;
+            roller = 127;
         } else {
             roller = 0;
         }
@@ -573,7 +586,6 @@ void opcontrol() {
 
 
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
-
         }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
             endgame.set_value(true);
