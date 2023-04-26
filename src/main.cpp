@@ -118,6 +118,7 @@ void doTBH(struct TBHValues* v){
     v->last_error = v->error;
 
     v->motor->set_voltage(12000.0 * v->drive);
+    flywheelSmall.set_voltage(-12000.0 * v->drive);
 }
 
 void flywheelTask(){
@@ -148,10 +149,10 @@ void flywheelTask(){
             .motor = &flywheelSmall
     };
     while(true){
-        pros::lcd::print(0, "Small V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
+        //pros::lcd::print(0, "Small V: %f, T: %f", smallWheel.current * 3600, smallWheel.target * 3600);
         pros::lcd::print(1, "Big V: %f, T: %f", bigWheel.current * 3600, bigWheel.target * 3600);
         doTBH(&bigWheel);
-        doTBH(&smallWheel);
+        //doTBH(&smallWheel);
         pros::delay(10);
     }
 }
@@ -182,7 +183,7 @@ void initialize() {
     //odom1.position = Cartesian(0.0_in,0.0_in);
     pros::Task myTask(odomTask);
     pros::Task myFlywheelTask(flywheelTask);
-    indexer.set_value(false);
+//    indexer.set_value(false);
 
     sylib::initialize();
 }
@@ -289,9 +290,9 @@ void autonomous() {
 
         rpm_target = 3150;
         pros::delay(5000);
-        indexer.set_value(true); //shoot first disc
+//        indexer.set_value(true); //shoot first disc
         pros::delay(1000);
-        indexer.set_value(false);
+//        indexer.set_value(false);
         pros::delay(1500);
 
         robot1.goToCharles(&odom1, robotPose(106_in, 10_in, 180_deg), 1_in);
@@ -301,14 +302,13 @@ void autonomous() {
         facePoint(&robot1, Cartesian(122.22, 122.22));
         pros::delay(1000);
 
-        indexer.set_value(true); //shoot second disc
-        pros::delay(1500);
-        indexer.set_value(false);
-        pros::delay(1500);
+//        indexer.set_value(true);
+//        pros::delay(1500);
+//        indexer.set_value(false);
+//        pros::delay(1500);
 
         rpm_target = 0;
-    }
-    else{
+    } else{
         robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
         robot1.goToCharles(&odom1, robotPose(111_in, 13_in, 180_deg), 1_in);
         robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
@@ -447,82 +447,85 @@ void opcontrol2(){
 
 float diagnosticTimer;
 void opcontrol() {
-	//pros::delay(100);
-	//up.reset();
-	//sideways.reset();
-	std::vector<robotPose> start_to_Roller2 = Path::qbezierManualHeading(
-            robotPose(Cartesian(114.0_in, 7.5_in) ,
-              okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(114.0_in , 24.0_in) ,
-              okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(136.0_in , 30.0_in) ,
-              okapi::QAngle(0.0)),
-           25);
-    std::vector<robotPose> Roller2_to_Roller3 = Path::qbezierManualHeading(
-            robotPose(Cartesian(136.0_in , 30.0_in) ,
-                      okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(80.0_in, 100.0_in) ,
-                      okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(8.0_in, 114.0_in) ,
+    //pros::delay(100);
+    //up.reset();
+    //sideways.reset();
+    std::vector <robotPose> start_to_Roller2 = Path::qbezierManualHeading(
+            robotPose(Cartesian(114.0_in, 7.5_in),
                       okapi::QAngle(0.0)),
-                      100);
-    std::vector<robotPose> Roller3_to_Roller4 = Path::qbezierManualHeading(
-            robotPose(Cartesian(8_in, 114_in) ,
-                      okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(30.0_in , 114.0_in) ,
-                      okapi::QAngle(0.0)) ,
-            robotPose(Cartesian(30.0_in  , 137.0_in) ,
+            robotPose(Cartesian(114.0_in, 24.0_in),
                       okapi::QAngle(0.0)),
-                      25);
-	int progress = 0;
-	RobotControl robot1;
-	//AMT21 amt21_left(19, 0x58);
-	//imu1.reset();
-	while(imu1.is_calibrating()==true) {
-		pros::delay(20);
-	}
-	pros::delay(100);
-	Cartesian stick1;
+            robotPose(Cartesian(136.0_in, 30.0_in),
+                      okapi::QAngle(0.0)),
+            25);
+    std::vector <robotPose> Roller2_to_Roller3 = Path::qbezierManualHeading(
+            robotPose(Cartesian(136.0_in, 30.0_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(80.0_in, 100.0_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(8.0_in, 114.0_in),
+                      okapi::QAngle(0.0)),
+            100);
+    std::vector <robotPose> Roller3_to_Roller4 = Path::qbezierManualHeading(
+            robotPose(Cartesian(8_in, 114_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(30.0_in, 114.0_in),
+                      okapi::QAngle(0.0)),
+            robotPose(Cartesian(30.0_in, 137.0_in),
+                      okapi::QAngle(0.0)),
+            25);
+    int progress = 0;
+    RobotControl robot1;
+    //AMT21 amt21_left(19, 0x58);
+    //imu1.reset();
+    while (imu1.is_calibrating() == true) {
+        pros::delay(20);
+    }
+    pros::delay(100);
+    Cartesian stick1;
     //okapi::QAngle robotHeading = 0_rad;
-    okapi::QAngle robotHeading = imu1.get_heading()*1_deg;
-	//odom odom1 = odom();
-	double drivePow=0;
-	//pros::Motor intake ();
-	while (true) {
+    okapi::QAngle robotHeading = imu1.get_heading() * 1_deg;
+    //odom odom1 = odom();
+    double drivePow = 0;
+
+    //pros::Motor intake ();
+    while (true) {
         pros::lcd::print(2, "Distance: %f", getDistanceBetweenPoints(odom1.position, GOAL_POS).convert(okapi::inch));
-        pros::lcd::print(3, "Delta heading: %f", ((imu1.get_heading() * 1_deg) - getAngleToPoint(odom1.position, GOAL_POS) - 180_deg).convert(okapi::degree));
+        pros::lcd::print(3, "Delta heading: %f",
+                         ((imu1.get_heading() * 1_deg) - getAngleToPoint(odom1.position, GOAL_POS) - 180_deg).convert(
+                                 okapi::degree));
         pros::lcd::print(6, "heading_inertial: %f", imu2.get_heading());
         pros::lcd::print(7, "heading_navx: %f", imu1.get_heading());
-		//odom1.updateOdom();
-		int x = master.get_analog(ANALOG_LEFT_X);
-		int y = master.get_analog(ANALOG_LEFT_Y);
-		int turn = master.get_analog(ANALOG_RIGHT_X);
-		stick1.updatePoint(x*1_in, y*1_in);
-		okapi::QAngle headingInput = stick1.getHeading() + (imu1.get_heading() * 1_deg);
-		double magn = pow((x*x+y*y), 0.5);
-		if(fabs(normRightX())>5) {
-			robotHeading = robotHeading+normRightX()*.06_deg;
-		}
-		if((fabs(normRightX())<=5)&&(fabs(robotHeading.convert(okapi::degree)-imu1.get_heading())>50)) {
-			robotHeading = imu1.get_heading()*1_deg;
-		}
-		if((pros::millis()-diagnosticTimer)>1000) {
+        //odom1.updateOdom();
+        int x = master.get_analog(ANALOG_LEFT_X);
+        int y = master.get_analog(ANALOG_LEFT_Y);
+        int turn = master.get_analog(ANALOG_RIGHT_X);
+        stick1.updatePoint(x * 1_in, y * 1_in);
+        okapi::QAngle headingInput = stick1.getHeading() + (imu1.get_heading() * 1_deg);
+        double magn = pow((x * x + y * y), 0.5);
+        if (fabs(normRightX()) > 5) {
+            robotHeading = robotHeading + normRightX() * .06_deg;
+        }
+        if ((fabs(normRightX()) <= 5) && (fabs(robotHeading.convert(okapi::degree) - imu1.get_heading()) > 50)) {
+            robotHeading = imu1.get_heading() * 1_deg;
+        }
+        if ((pros::millis() - diagnosticTimer) > 1000) {
             // printf("magn: %f\n", magn);
             // printf("turn:  %d\n", turn);
-			// printf("controller: %f\n", normRightX());
-			// printf("robotHeading: %f\n", robotHeading.convert(okapi::degree));
+            // printf("controller: %f\n", normRightX());
+            // printf("robotHeading: %f\n", robotHeading.convert(okapi::degree));
             // printf("-------------------------\n");
             /*printf("up: %d\n", up.get_value());
             printf("up2: %d\n", up2.get_value());
             printf("average: %f\n", (up.get_value() + up2.get_value())/2.0);
 			printf("sideways: %d\n", sideways.get_value());*/
             diagnosticTimer = pros::millis();
-			odom1.printOdom();
-		}
-		// robot1.absStrafe(headingInput, magn, turn*1);
+            odom1.printOdom();
+        }
+        // robot1.absStrafe(headingInput, magn, turn*1);
 
 
-        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
             okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1.position, GOAL_POS);
             int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
             //900ms assumed flight time
@@ -531,97 +534,59 @@ void opcontrol() {
             //deltaPosFudged.scale(700);
             deltaPosFudged.scale(flightTimeMS);
 
-            Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1.position.x, deltaPosFudged.y + odom1.position.y);
-            okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged, GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+            Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1.position.x,
+                                                   deltaPosFudged.y + odom1.position.y);
+            okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
+                                                                 GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
             //Cartesian targetPoint =
             rpm_target = calcRPMForDistance(distFudged);
             okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
             okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
             robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
-        }
-		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-			/*drivePow = odom1.position.getMagnitude().convert(okapi::inch)*30;
-			if (drivePow>100) {
-				drivePow = 100;
-			}
-			robotHeading = 0_rad;
-			robot1.headingStrafe(odom1.position.getHeading()+180_deg, drivePow, 0_rad);	*/
-		} else {
+        } else {
             double turnVal = normRightX();
-            if (fabs(turnVal) < 8){
+            if (fabs(turnVal) < 8) {
                 turnVal = 0;
             }
-			robot1.absStrafe(headingInput, magn, turnVal);
+            robot1.relStrafe(stick1.getHeading(), magn, turnVal);
             //robot1.
-		}
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-			//odom1.resetOdom();
-            //robot1.goToCharles(&odom1 , robotPose(114_in,7.5_in ,0_deg), 8_in);
-            robot1.followCurve(&odom1,start_to_Roller2, 4_in);
-            robot1.followCurve(&odom1, Roller2_to_Roller3,8_in);
-            robot1.followCurve(&odom1, Roller3_to_Roller4,4_in);
-            //robot1.followCurve(&odom1, Test.path1, 8_in);
-		}
-//		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-//			//intake.move(12);
-//			for(std::vector<robotPose>::iterator Deez = Test.begin(); Deez != Test.end(); ++Deez) {
-//				robot1.goTo(odom1 , (*Deez), 8);
-//			}
-//		}
-//		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
-//			robot1.goTo(odom1 , Test.at(130), 8);
-//		}
-		// drive11();
-
-        /*if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-            autonomous();
-        }*/
-
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-            rpm_target += 50;
-            //rpm_target = 3600;
         }
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-            rpm_target = 2900;
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            roller = 256;
+        } else {
+            roller = 0;
         }
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-            rpm_target -= 50;
-            //rpm_target = 0;
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            tilter.set_value(true);
+        } else {
+            tilter.set_value(false);
+        }
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+            rpm_target = 2000;
+        }
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
+            rpm_target = 3800;
+        }
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+            rpm_target = 2500;
         }
 
-        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-            indexer.set_value(true);
+
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+
         }
-        else{
-            indexer.set_value(false);
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+            endgame.set_value(true);
         }
 
-        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             intake.move_velocity(200);
-        }
-        else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intake.move_velocity(-200);
-        }
-        else{
+        } else {
             intake.move_velocity(0);
         }
 
-//        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
-//            intake.move_relative(90, 300);
-//            pros::delay(2000);
-//        }
-
-        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            facePoint(&robot1, GOAL_POS);
-        }
-
-        if(master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-            endgame.set_value(true);
-        }
-        else{
-            endgame.set_value(false);
-        }
-		
-	pros::delay(20);
-	}
+        pros::delay(20);
+    }
 }
