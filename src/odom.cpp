@@ -81,13 +81,13 @@ okapi::QLength odom::getY_position() {
 long odom::getTimestamp(){
     return currentTimestamp;
 }
-Cartesian odom::deltaPositionNormalized(){
+Cartesian odom::deltaPositionNormalized() {
     long deltaTime = currentTimestamp - lastTimestamp;
     return Cartesian((position.x - lastPosition.x)/(double)deltaTime, (position.y - lastPosition.y)/(double)deltaTime);
 }
-double odom::getHeading_encoders(){
+double odom::getHeading_encoders(double radius){
     double up1_val = up.get_value();
     double up2_val = up2.get_value();
-    double Output = (radius(M_PI/180.0))/((up1_val- up2_val)/2.0);
+    double Output = (radius*(M_PI/180.0))/((up1_val- up2_val)/2.0);
     return Output;
 }
