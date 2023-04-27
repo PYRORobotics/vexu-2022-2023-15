@@ -49,7 +49,7 @@ void::odom::updateOdom() {
     //robot relative
     Polar delta = Polar(xRelativeDelta,yRelativeDelta);
     //converting to field relative
-    odomAngle= ((previousInert+imu1.get_heading()*1_deg)/2);
+    odomAngle = ((previousInert+imu1.get_heading()*1_deg)/2);
     delta.addAngle(heading*1_deg);
     //add to current position
     position.add(delta);
@@ -84,4 +84,10 @@ long odom::getTimestamp(){
 Cartesian odom::deltaPositionNormalized(){
     long deltaTime = currentTimestamp - lastTimestamp;
     return Cartesian((position.x - lastPosition.x)/(double)deltaTime, (position.y - lastPosition.y)/(double)deltaTime);
+}
+double odom::getHeading_encoders(){
+    double up1_val = up.get_value();
+    double up2_val = up2.get_value();
+    double Output = (radius(M_PI/180.0))/((up1_val- up2_val)/2.0);
+    return Output;
 }

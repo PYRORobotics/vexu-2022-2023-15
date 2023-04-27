@@ -30,6 +30,7 @@ class odom{
     void updateOdom();
     okapi::QLength getX_position();
     okapi::QLength getY_position();
+    double getHeading_encoders(double left, double right);
     void printOdom();
     long getTimestamp();
 

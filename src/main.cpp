@@ -265,37 +265,38 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
  * from where it left off.
  */
 void autonomous() {
+    double offset = 180.0;
     std::vector <robotPose> start_to_3stack = Path::cbezierManualHeading(
-            robotPose(Cartesian(86.5_in , 7.5_in), okapi::QAngle(0.0)),
-            robotPose (Cartesian(  86.5_in, 12_in ), okapi::QAngle(0.0)),
-            robotPose (Cartesian(  120_in, 10_in ), okapi::QAngle(0.0)),
-            robotPose(Cartesian(107.0_in , 36_in), okapi::QAngle(0.0)),
+            robotPose(Cartesian(86.5_in , 7.5_in), okapi::QAngle(0.0 + offset)),
+            robotPose (Cartesian(  86.5_in, 12_in ), okapi::QAngle(0.0 + offset)),
+            robotPose (Cartesian(  120_in, 10_in ), okapi::QAngle(0.0 + offset)),
+            robotPose(Cartesian(107.0_in , 36_in), okapi::QAngle(0.0 + offset)),
             20);
     std::vector <robotPose> stack3_to_start3Pickup = Path::qbezierManualHeading(
             robotPose(Cartesian(107.0_in , 36.0_in),
-                      okapi::QAngle(0.0)),
+                      okapi::QAngle(0.0 + offset)),
             robotPose(Cartesian(100.0_in, 30.0_in),
-                      okapi::QAngle(340.0)),
+                      okapi::QAngle(340.0 + offset)),
             robotPose(Cartesian(95.0_in, 26.0_in),
-                      okapi::QAngle(320.0)),
+                      okapi::QAngle(320.0 + offset)),
             35);
     std::vector <robotPose> start3Pickup_to_end3Pickup = Path::generateStraightPath(
             robotPose(Cartesian(95.0_in, 26.0_in),
-                      okapi::QAngle(320.0)),
+                      okapi::QAngle(320.0 + offset)),
             robotPose(Cartesian(63.0_in , 49.0_in),
-                      okapi::QAngle(320.0)),
+                      okapi::QAngle(320.0 + offset)),
             25);
     std::vector <robotPose> stack3_to_Roller = Path::generateStraightPath(
             robotPose(Cartesian(107.0_in , 36.0_in),
-                      okapi::QAngle(0.0)),
+                      okapi::QAngle(0.0 + offset)),
             robotPose(Cartesian(108.0_in, 7.5_in),
-                      okapi::QAngle(180.0)),
+                      okapi::QAngle(180.0 + offset)),
             20);
     std::vector <robotPose> Roller_to_start3Pickup = Path::generateStraightPath(
             robotPose(Cartesian(108.0_in , 7.5_in),
-                      okapi::QAngle(0.0)),
+                      okapi::QAngle(0.0 + offset)),
             robotPose(Cartesian(95.0_in, 26.0_in),
-                      okapi::QAngle(330.0)),
+                      okapi::QAngle(330.0 + offset)),
             20);
 	RobotControl robot1;
 	imu1.reset();
