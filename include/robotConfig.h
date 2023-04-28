@@ -29,7 +29,7 @@
     inline navX imu1(16);
 	//inline pros::ADIEncoder up('a', 'b', true);
 	//inline pros::ADIEncoder sideways('c', 'd', false);
-	inline AMT21 up(20, 0x54,false);//Blue
+	inline AMT21 up(20, 0x54,false);//Blue IF UP IS TRUE AND UP2 IS FALSE STRAFE VALUE IN ROBOTCONTROL LINE 42(relStrafe) SHOULD BE SIGN SWITCHED
     inline AMT21 up2(19, 0x54, true);//Red - Pyrosticker bot is 18, the other one is 19
 	inline AMT21 sideways(18, 0x54, true); //Pink - pyro sticker one is 17, the other one is 18
     inline pros::Controller master(pros::E_CONTROLLER_MASTER);

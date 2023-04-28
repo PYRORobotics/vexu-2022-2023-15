@@ -39,7 +39,7 @@ void RobotControl::raw_tank(double straightPow, double turnPow, double strafePow
 void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) {
 	double straight = pow*cos(relHeading.convert(okapi::radian));
 	double strafe = -(pow*sin(relHeading.convert(okapi::radian)));
-	this->raw_tank(straight, turn, -strafe);
+	this->raw_tank(straight, turn, -strafe);// CHANGE THE ENCODERS IF CHANGING STRAFE SIGN,AKA MAKE THE LEFT ONE THE RIGHT ON AND VIS VERSA
 }
 
 void RobotControl::absStrafe(okapi::QAngle absHeading, double pow, double turn) {
