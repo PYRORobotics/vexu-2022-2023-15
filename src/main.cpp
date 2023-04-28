@@ -169,13 +169,14 @@ void flywheelTask(){
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    //1010
     printf("entered initialize.\n");
     imu2 = new pros::Imu(17);
     imu1 = new navX(16);
-    up = new AMT21(19, 0x54,false);//Blue
-    up2 = new AMT21(20, 0x54, true);//Red - Pyrosticker bot is 18, the other one is 19
-    sideways = new AMT21(18, 0x54, true); //Pink - pyro sticker one is 17, the other one is 18
-		pros::lcd::initialize();
+    up = new AMT21(19, 0x54,true);//Blue
+    up2 = new AMT21(20, 0x54, false);//Red - Pyrosticker bot is 18, the other one is 19
+    sideways = new AMT21(18, 0x54, false); //Pink - pyro sticker one is 17, the other one is 18
+    pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
@@ -277,39 +278,73 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
  * from where it left off.
  */
 void autonomous() {
+    bool go_to_roller = false;
+    bool starts_at_roller = false;
     double offset = 180.0;
-    std::vector <robotPose> start_to_3stack = Path::cbezierManualHeading(
-            robotPose(Cartesian(86.5_in , 7.5_in), okapi::QAngle(0.0 + offset)),
-            robotPose (Cartesian(  86.5_in, 12_in ), okapi::QAngle(0.0 + offset)),
-            robotPose (Cartesian(  120_in, 10_in ), okapi::QAngle(0.0 + offset)),
-            robotPose(Cartesian(107.0_in , 36_in), okapi::QAngle(0.0 + offset)),
-            20);
-    std::vector <robotPose> stack3_to_start3Pickup = Path::qbezierManualHeading(
-            robotPose(Cartesian(107.0_in , 36.0_in),
-                      okapi::QAngle(0.0 + offset)),
-            robotPose(Cartesian(100.0_in, 30.0_in),
-                      okapi::QAngle(340.0 + offset)),
-            robotPose(Cartesian(95.0_in, 26.0_in),
-                      okapi::QAngle(320.0 + offset)),
+    std::vector <robotPose> start_to_linepick = Path::cbezierManualHeading(
+            robotPose(Cartesian(9.5_in, 86.5_in), okapi::QAngle(0.0 + offset)),
+            robotPose (Cartesian(  8.5_in, 100.0_in ), okapi::QAngle(0.0 + offset)),
+            robotPose (Cartesian(  8.5_in, 105.0_in ), okapi::QAngle(45.0 + offset)),
+            robotPose(Cartesian(24.0_in , 120.0_in), okapi::QAngle(45.0 + offset)),
             35);
-    std::vector <robotPose> start3Pickup_to_end3Pickup = Path::generateStraightPath(
-            robotPose(Cartesian(95.0_in, 26.0_in),
-                      okapi::QAngle(320.0 + offset)),
-            robotPose(Cartesian(63.0_in , 49.0_in),
-                      okapi::QAngle(320.0 + offset)),
-            25);
-    std::vector <robotPose> stack3_to_Roller = Path::generateStraightPath(
-            robotPose(Cartesian(107.0_in , 36.0_in),
-                      okapi::QAngle(0.0 + offset)),
-            robotPose(Cartesian(108.0_in, 7.5_in),
-                      okapi::QAngle(180.0 + offset)),
-            20);
-    std::vector <robotPose> Roller_to_start3Pickup = Path::generateStraightPath(
-            robotPose(Cartesian(108.0_in , 7.5_in),
-                      okapi::QAngle(0.0 + offset)),
-            robotPose(Cartesian(95.0_in, 26.0_in),
+    std::vector <robotPose> linepick_to_3midDisks = Path::cbezierManualHeading(
+            robotPose(Cartesian(24.0_in , 120.0_in),
+                      okapi::QAngle(45.0 + offset)),
+            robotPose(Cartesian(20.0_in, 90.0_in),
+                      okapi::QAngle(45.0 + offset)),
+            robotPose(Cartesian(20.0_in, 96.0_in),
+                      okapi::QAngle(45.0 + offset)),
+                robotPose(Cartesian(36.0_in , 107.0_in),
+                      okapi::QAngle(45.0 + offset)),
+            35);
+    std::vector <robotPose> midDisks_to_Roller = Path::qbezierManualHeading(
+            robotPose(Cartesian(36.0_in , 107.0_in),
+                      okapi::QAngle(120.0 + offset)),
+            robotPose(Cartesian(34.0_in, 107.5_in),
+                      okapi::QAngle(270.0 + offset)),
+            robotPose(Cartesian(10.0_in, 108.0_in),
+                      okapi::QAngle(270.0 + offset)),
+            35);
+    std::vector <robotPose> roller_to_DiskLineUp = Path::generateStraightPath(
+            robotPose(Cartesian(10.0_in , 108.0_in),
+                      okapi::QAngle(330.0 + offset)),
+            robotPose(Cartesian(26.0_in, 95.0_in),
                       okapi::QAngle(330.0 + offset)),
             20);
+    std::vector <robotPose> midDisks_to_3DiskLineUp = Path::qbezierManualHeading(
+            robotPose(Cartesian(36.0_in , 107.0_in),
+                      okapi::QAngle(45.0 + offset)),
+            robotPose(Cartesian(20.0_in, 120.0_in),
+                      okapi::QAngle(120.0 + offset)),
+            robotPose(Cartesian(26.0_in, 95.0_in),
+                      okapi::QAngle(120.0 + offset)),
+            25);
+    std::vector <robotPose> DiskLineUp_to_endLineup = Path::generateStraightPath(
+            robotPose(Cartesian(26.0_in,95.0_in),
+                      okapi::QAngle(140.0 + offset)),
+            robotPose(Cartesian(72.0_in , 48.0_in),
+                      okapi::QAngle(140.0 + offset)),
+            35);
+    std::vector <robotPose> endLineup_to_edgepickup = Path::generateStraightPath(
+            robotPose(Cartesian(62.0_in , 56.0_in),
+                      okapi::QAngle(200.0 + offset)),
+            robotPose(Cartesian(56.0_in, 50.0_in),
+                      okapi::QAngle(180.0 + offset)),
+            20);
+    std::vector <robotPose> last_3Pickup = Path::generateStraightPath(
+            robotPose(Cartesian(72.0_in , 48.0_in),
+                      okapi::QAngle(135.0 + offset)),
+            robotPose(Cartesian(82.0_in, 38.0_in),
+                      okapi::QAngle(135.0 + offset)),
+            35);
+    std::vector <robotPose> rollerstart_to_3Disks = Path::qbezierManualHeading(
+            robotPose(Cartesian(113.5_in,9.0_in),
+                      okapi::QAngle(5.0 + offset)),
+            robotPose(Cartesian(88.0_in,13.0_in),
+                      okapi::QAngle(55.0 + offset)),
+            robotPose(Cartesian(108.0_in , 36.0_in),
+                      okapi::QAngle(45.0 + offset)),
+            35);
 	RobotControl robot1;
 	imu1->reset();
 	while(imu1->is_calibrating()) {
@@ -317,13 +352,59 @@ void autonomous() {
 	}
 	pros::delay(100);
     if(true) { //true for match auto, false for skills auto
-
-        robot1.followCurve(odom1, start_to_3stack, 5_in);
-
-        robot1.followCurve( odom1, stack3_to_start3Pickup, 5_in);
-
-        robot1.followCurve(odom1, start3Pickup_to_end3Pickup, 5_in);
-
+//        if(starts_at_roller = true) {
+//            robot1.followCurve(odom1, start_to_linepick, 4_in);
+//
+//            robot1.followCurve(odom1, linepick_to_3midDisks, 4_in);
+//            zapper.set_value(true);
+//            robot1.raw_tank(30.0, 0.0, 0.0);
+//            intake = 126;
+//            pros::delay(30);
+//            zapper.set_value(false);
+//            pros::delay(100);
+//            intake = 0;
+//            //TODO shoot
+//            if (go_to_roller = false) {
+//                robot1.followCurve(odom1, midDisks_to_Roller, 5_in);
+//                robot1.raw_tank(100.0, 0.0, 0.0);
+//                roller = 127;
+//                pros::delay(10);
+//                robot1.raw_tank(0.0, 0.0, 0.0);
+//                pros::delay(20);
+//                roller = 0;
+//                robot1.followCurve(odom1, roller_to_DiskLineUp, 5_in);
+//            } else {
+//                robot1.followCurve(odom1, midDisks_to_3DiskLineUp, 5_in);
+//            }
+//            intake = 126;
+//            robot1.followCurve(odom1, DiskLineUp_to_endLineup, 5_in);
+//            intake = 0;
+//            //TODO shoot
+//            robot1.followCurve(odom1, endLineup_to_edgepickup, 5_in);
+//            intake = 126;
+//            robot1.raw_tank(50.0, 0.0, 0.0);
+//            pros::delay(3000);
+//            intake = 0;
+//            //TODO shoot
+//            zapper.set_value(true);
+//            intake = 126;
+//            robot1.followCurve(odom1, last_3Pickup, 5_in);
+//            zapper.set_value(false);
+//            pros::delay(100);
+//            intake = 0;
+//            //TODO shoot
+//        } else {
+//            zapper.set_value(true);
+//            intake = 126;
+//            robot1.followCurve(odom1, rollerstart_to_3Disks, 4_in);
+//            robot1.raw_tank(10.0,0.0,0.0);
+//            pros::delay(30);
+//            robot1.raw_tank(0.0,0.0,0.0);
+//            zapper.set_value(false);
+//            pros::delay(20);
+//            intake = 0;
+//        }
+        robot1.raw_tank(0.0,0.0,0.0);
         //robot1.raw_tank(0.0,0.0,0.0);
 //        robot1.goToCharles(odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
 //        robot1.goToCharles(odom1, robotPose(112_in, 12_in, 180_deg), 1_in);
