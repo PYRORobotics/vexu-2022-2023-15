@@ -175,6 +175,7 @@ void initialize() {
     up2.reset();
     sideways.reset();
     imu1.initialize();
+    pros::delay(200);
     imu1.reset();
     pros::delay(100);
     odom1 = odom();
@@ -558,6 +559,18 @@ void opcontrol() {
             rpm_target = calcRPMForDistance(distFudged);
             okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
             okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+
+            printf("distfudged: %f\n",distFudged.convert(okapi::inch));
+            printf("offsetAngle: %f\n", offsetAngle.convert(okapi::degree));
+            printf("rpm_target: %f\n", rpm_target);
+            printf("angle: %f\n", angle.convert(okapi::degree));
+
+            //printf("offset angle: %f\n", offsetAngle.convert(okapi::degree));
+            //printf("currentposfudged: %f, %f\n", currentPosFudged.x.convert(inch), currentPosFudged.y.convert(inch));
+            //printf("angle: %f\n", angle.convert(okapi::degree));
+            //printf("distance: %f\n", realDistToGoal.convert(inch));
+            //printf("time: %f\n", flightTimeMS/1000.0);
+            //robot1.headingStrafe(stick1.getHeading(), magn, angle); //TODO:REENABLE THIS
             Polar got_to_goal = Polar(GOAL_POS.x - odom1.position.x, GOAL_POS.y - odom1.position.y);
             robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
         } else {
@@ -579,13 +592,16 @@ void opcontrol() {
             tilter.set_value(false);
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-            rpm_target = 2000;
+            //rpm_target = 2000;
+            rpm_target += 50;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
-            rpm_target = 3800;
+            //rpm_target = 3800;
+            rpm_target = 2500;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-            rpm_target = 2500;
+            //rpm_target = 2500;
+            rpm_target += 50;
         }
 
 

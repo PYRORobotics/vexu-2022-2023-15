@@ -6,7 +6,7 @@
 #include "arduino-comms.h"
 //#define DEBUG
 //#define LOG
-//#define ERROR
+#define ERROR
 
 Arduino::Arduino(int port) : serial_port(port, 115200){
 
