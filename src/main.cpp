@@ -667,7 +667,7 @@ void opcontrol() {
             //printf("angle: %f\n", angle.convert(okapi::degree));
             //printf("distance: %f\n", realDistToGoal.convert(inch));
             //printf("time: %f\n", flightTimeMS/1000.0);
-            robot1.headingStrafe(stick1.getHeading(), magn, angle); //TODO:REENABLE THIS
+            robot1.headingStrafe(-stick1.getHeading(), -magn, angle); //TODO:REENABLE THIS
             //Polar got_to_goal = Polar(GOAL_POS.x - odom1->position.x, GOAL_POS.y - odom1->position.y);
             //robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
         } else {
