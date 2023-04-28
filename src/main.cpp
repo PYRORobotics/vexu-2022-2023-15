@@ -175,9 +175,9 @@ void initialize() {
     printf("entered initialize.\n");
     imu2 = new pros::Imu(17);
     imu1 = new navX(16);
-    up = new AMT21(19, 0x54,true);//Blue
-    up2 = new AMT21(20, 0x54, false);//Red - Pyrosticker bot is 18, the other one is 19
-    sideways = new AMT21(18, 0x54, false); //Pink - pyro sticker one is 17, the other one is 18
+    up = new AMT21(19, 0x54,false);//Blue
+    up2 = new AMT21(20, 0x54, true);//Red - Pyrosticker bot is 18, the other one is 19
+    sideways = new AMT21(18, 0x54, true); //Pink - pyro sticker one is 17, the other one is 18
     pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
