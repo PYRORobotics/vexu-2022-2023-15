@@ -14,19 +14,21 @@ using okapi::inch;
 
 odom* odom1;
 //const Cartesian GOAL_POS(122.22_in, 122.22_in);
-const Cartesian GOAL_POS(0_in, 43_in);
+const Cartesian GOAL_POS(0_in, 1100_in);
 
 //const Cartesian STARTING_POS(86.5_in , 7.5_in)
 const Cartesian STARTING_POS(0_in,0_in);
 
 int calcRPMForDistance(okapi::QLength dist){
     double x = dist.convert(okapi::inch);
-    return 2014 + 7.55*x + 0.0222*(x*x);
+    //return 2014 + 7.55*x + 0.0222*(x*x);
+    return 3114 - 13.5*x + 0.134*(x*x);
 }
 
 int calcTimeMSForDistance(okapi::QLength dist){
     double x = dist.convert(okapi::inch);
-    return 1000*(0.0474 + 0.0146*x - 4.98E-5 * (x*x));
+    //return 1000*(0.0474 + 0.0146*x - 4.98E-5 * (x*x));
+    return 1000*(0.0629 + 6E-03*x - 2.64E-20 * (x*x));
 }
 
 okapi::QAngle calcAngleForRPM(int x){
@@ -122,8 +124,8 @@ void doTBH(struct TBHValues* v){
     // Save last error
     v->last_error = v->error;
 
-    //v->motor->set_voltage(-12000.0 * v->drive);
-    //flywheelSmall.set_voltage(12000.0 * v->drive);
+    v->motor->set_voltage(-12000.0 * v->drive);
+    flywheelSmall.set_voltage(12000.0 * v->drive);
 }
 
 void flywheelTask(){
@@ -603,18 +605,18 @@ void opcontrol() {
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
             //tilter.set_value(true);
-            blooper.set_value(true);
+            blooper.set_value(false);
         } else {
             //tilter.set_value(false);
-            blooper.set_value(false);
+            blooper.set_value(true);
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
             //rpm_target = 2000;
-            rpm_target += 50;
+            rpm_target = 2500;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
             //rpm_target = 3800;
-            rpm_target = 2500;
+            rpm_target -= 50;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
             //rpm_target = 2500;
