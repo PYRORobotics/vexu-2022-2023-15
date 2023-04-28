@@ -43,12 +43,12 @@ void RobotControl::relStrafe(okapi::QAngle relHeading, double pow, double turn) 
 }
 
 void RobotControl::absStrafe(okapi::QAngle absHeading, double pow, double turn) {
-	this->relStrafe(absHeading-imu1.get_heading()*1_deg, pow, turn);		
+	this->relStrafe(absHeading-imu1->get_heading()*1_deg, pow, turn);		
 }
 void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::QAngle turnHeading) {
 	//helps calculate the fastest way to turn to the desired heading
-	double error = turnHeading.convert(okapi::degree)-imu1.get_heading()+360;
-	double test = turnHeading.convert(okapi::degree)-imu1.get_heading()+360;
+	double error = turnHeading.convert(okapi::degree)-imu1->get_heading()+360;
+	double test = turnHeading.convert(okapi::degree)-imu1->get_heading()+360;
 	error = fmod(error, 360);
 	test = fmod(test, 360);
 
@@ -64,7 +64,7 @@ void RobotControl::headingStrafe(okapi::QAngle driveHeading, double pow, okapi::
 	this->absStrafe(driveHeading, pow, turnPow);
 	if((pros::millis()-timer)>1000000000000000000) {
 		printf("error: %f\n", error);
-		printf("RAW: %f\n",  turnHeading.convert(okapi::degree)-imu1.get_heading());
+		printf("RAW: %f\n",  turnHeading.convert(okapi::degree)-imu1->get_heading());
 		printf("test: %f\n", test);
 
 		timer = pros::millis();
@@ -111,7 +111,7 @@ void RobotControl::goTo(odom *odom1, robotPose robotPose, okapi::QLength follow_
         this->headingStrafe(delta.getHeading()+0_deg, drivePow * 1.0, (robotPose.heading));
         if(i%100 == 0){
             printf("Dmag: %f\n", delta.getMagnitude().convert(okapi::inch));
-            printf("Angle: %f" , imu1.get_heading());
+            printf("Angle: %f" , imu1->get_heading());
             odom1->printOdom();
             //printf("Ox: %f\n", odom1.position.x.convert(okapi::inch));
             //printf("Oy: %f\n", odom1.position.y.convert(okapi::inch));
