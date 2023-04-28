@@ -1,6 +1,8 @@
 #include "navX.h"
 
 navX::navX(int port) : arduino(port) {
+//navX::navX(int port) {
+
 
 }
 void navX::initialize() {
@@ -14,7 +16,7 @@ double navX::get_heading(bool doOffset) {
     double scaledValue = rawValue/100.0;
     if(doOffset){
         scaledValue += offset;
-        scaledValue += 180; //robot starts facing backwards
+        //scaledValue += 180; //robot starts facing backwards //TODO:turn this back on
     }
 
     double convertedValue = scaledValue;
