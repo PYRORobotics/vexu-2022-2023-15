@@ -13,11 +13,11 @@
 using okapi::inch;
 
 odom* odom1;
-//const Cartesian GOAL_POS(122.22_in, 122.22_in);
-const Cartesian GOAL_POS(0_in, 1100_in);
+const Cartesian GOAL_POS(122.22_in, 122.22_in);
+//const Cartesian GOAL_POS(0_in, 1100_in);
 
-//const Cartesian STARTING_POS(86.5_in , 7.5_in)
-const Cartesian STARTING_POS(0_in,0_in);
+const Cartesian STARTING_POS(86.5_in , 7.5_in);
+//const Cartesian STARTING_POS(0_in,0_in);
 
 int calcRPMForDistance(okapi::QLength dist){
     double x = dist.convert(okapi::inch);
@@ -675,11 +675,11 @@ void opcontrol() {
             if (fabs(turnVal) < 8) {
                 turnVal = 0;
             }
-            robot1.relStrafe(stick1.getHeading(), magn, turnVal);
+            robot1.relStrafe(-stick1.getHeading(), -magn, turnVal);
             //robot1.
         }
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            roller = 127;
+            roller = -127;
         } else {
             roller = 0;
         }
@@ -692,16 +692,16 @@ void opcontrol() {
             blooper.set_value(true);
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-            //rpm_target = 2000;
-            rpm_target = 2500;
+            rpm_target = 3200;
+            //rpm_target = 2500;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
-            //rpm_target = 3800;
-            rpm_target -= 50;
+            rpm_target = 2800;
+            //rpm_target -= 50;
         }
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-            //rpm_target = 2500;
-            rpm_target += 50;
+            rpm_target = 3600;
+            //rpm_target += 50;
         }
 
 
