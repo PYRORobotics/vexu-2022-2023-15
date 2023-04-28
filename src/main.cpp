@@ -16,7 +16,7 @@ odom* odom1;
 const Cartesian GOAL_POS(122.22_in, 122.22_in);
 //const Cartesian GOAL_POS(0_in, 1100_in);
 
-const Cartesian STARTING_POS(86.5_in , 7.5_in);
+const Cartesian STARTING_POS(7.5_in , 86.5_in);
 //const Cartesian STARTING_POS(0_in,0_in);
 
 int calcRPMForDistance(okapi::QLength dist){
@@ -282,7 +282,7 @@ void facePoint(RobotControl* robot, Cartesian pointToFace, double threshold = 0.
 void autonomous() {
     bool go_to_roller = false;
     bool starts_at_roller = false;
-    double offset = 180.0;
+    double offset = 0.0;
     std::vector <robotPose> start_to_linepick = Path::cbezierManualHeading(
             robotPose(Cartesian(9.5_in, 86.5_in), okapi::QAngle(0.0 + offset)),
             robotPose (Cartesian(  8.5_in, 100.0_in ), okapi::QAngle(0.0 + offset)),
@@ -354,58 +354,159 @@ void autonomous() {
 	}
 	pros::delay(100);
     if(true) { //true for match auto, false for skills auto
-//        if(starts_at_roller = true) {
-//            robot1.followCurve(odom1, start_to_linepick, 4_in);
-//
-//            robot1.followCurve(odom1, linepick_to_3midDisks, 4_in);
-//            zapper.set_value(true);
-//            robot1.raw_tank(30.0, 0.0, 0.0);
-//            intake = 126;
-//            pros::delay(30);
-//            zapper.set_value(false);
-//            pros::delay(100);
-//            intake = 0;
-//            //TODO shoot
-//            if (go_to_roller = false) {
-//                robot1.followCurve(odom1, midDisks_to_Roller, 5_in);
-//                robot1.raw_tank(100.0, 0.0, 0.0);
-//                roller = 127;
-//                pros::delay(10);
-//                robot1.raw_tank(0.0, 0.0, 0.0);
-//                pros::delay(20);
-//                roller = 0;
-//                robot1.followCurve(odom1, roller_to_DiskLineUp, 5_in);
-//            } else {
-//                robot1.followCurve(odom1, midDisks_to_3DiskLineUp, 5_in);
-//            }
-//            intake = 126;
-//            robot1.followCurve(odom1, DiskLineUp_to_endLineup, 5_in);
-//            intake = 0;
-//            //TODO shoot
-//            robot1.followCurve(odom1, endLineup_to_edgepickup, 5_in);
-//            intake = 126;
-//            robot1.raw_tank(50.0, 0.0, 0.0);
-//            pros::delay(3000);
-//            intake = 0;
-//            //TODO shoot
-//            zapper.set_value(true);
-//            intake = 126;
-//            robot1.followCurve(odom1, last_3Pickup, 5_in);
-//            zapper.set_value(false);
-//            pros::delay(100);
-//            intake = 0;
-//            //TODO shoot
-//        } else {
-//            zapper.set_value(true);
-//            intake = 126;
-//            robot1.followCurve(odom1, rollerstart_to_3Disks, 4_in);
-//            robot1.raw_tank(10.0,0.0,0.0);
-//            pros::delay(30);
-//            robot1.raw_tank(0.0,0.0,0.0);
-//            zapper.set_value(false);
-//            pros::delay(20);
-//            intake = 0;
-//        }
+        if(starts_at_roller = true) {
+            robot1.followCurve(odom1, start_to_linepick, 4_in);
+
+            robot1.followCurve(odom1, linepick_to_3midDisks, 4_in);
+            zapper.set_value(true);
+            robot1.raw_tank(30.0, 0.0, 0.0);
+            intake = 126;
+            pros::delay(30);
+            zapper.set_value(false);
+            pros::delay(100);
+            intake = 0;
+
+            long startTime = pros::millis();
+            while (pros::millis() < startTime + 3000){
+                okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1->position, GOAL_POS);
+                int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
+                //900ms assumed flight time
+                Cartesian deltaPos = odom1->deltaPositionNormalized();
+                Cartesian deltaPosFudged = deltaPos;
+                //deltaPosFudged.scale(700);
+                deltaPosFudged.scale(flightTimeMS);
+
+                Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1->position.x,
+                                                       deltaPosFudged.y + odom1->position.y);
+                okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
+                                                                     GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+
+                rpm_target = calcRPMForDistance(distFudged);
+                okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
+                okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+
+                robot1.headingStrafe(0_deg, 0, angle);
+            }
+            intake = -126;
+            pros::delay(1100);
+            intake = 0;
+            if (go_to_roller = false) {
+                robot1.followCurve(odom1, midDisks_to_Roller, 5_in);
+                robot1.raw_tank(100.0, 0.0, 0.0);
+                roller = 127;
+                pros::delay(10);
+                robot1.raw_tank(0.0, 0.0, 0.0);
+                pros::delay(20);
+                roller = 0;
+                robot1.followCurve(odom1, roller_to_DiskLineUp, 5_in);
+            } else {
+                robot1.followCurve(odom1, midDisks_to_3DiskLineUp, 5_in);
+            }
+            intake = 126;
+            robot1.followCurve(odom1, DiskLineUp_to_endLineup, 5_in);
+            intake = 0;
+
+
+            startTime = pros::millis();
+            while (pros::millis() < startTime + 3000){
+                okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1->position, GOAL_POS);
+                int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
+                //900ms assumed flight time
+                Cartesian deltaPos = odom1->deltaPositionNormalized();
+                Cartesian deltaPosFudged = deltaPos;
+                //deltaPosFudged.scale(700);
+                deltaPosFudged.scale(flightTimeMS);
+
+                Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1->position.x,
+                                                       deltaPosFudged.y + odom1->position.y);
+                okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
+                                                                     GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+
+                rpm_target = calcRPMForDistance(distFudged);
+                okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
+                okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+
+                robot1.headingStrafe(0_deg, 0, angle);
+            }
+            intake = -126;
+            pros::delay(1100);
+            intake = 0;
+            robot1.followCurve(odom1, endLineup_to_edgepickup, 5_in);
+            intake = 126;
+            robot1.raw_tank(50.0, 0.0, 0.0);
+            pros::delay(3000);
+            intake = 0;
+
+
+            startTime = pros::millis();
+            while (pros::millis() < startTime + 3000){
+                okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1->position, GOAL_POS);
+                int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
+                //900ms assumed flight time
+                Cartesian deltaPos = odom1->deltaPositionNormalized();
+                Cartesian deltaPosFudged = deltaPos;
+                //deltaPosFudged.scale(700);
+                deltaPosFudged.scale(flightTimeMS);
+
+                Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1->position.x,
+                                                       deltaPosFudged.y + odom1->position.y);
+                okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
+                                                                     GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+
+                rpm_target = calcRPMForDistance(distFudged);
+                okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
+                okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+
+                robot1.headingStrafe(0_deg, 0, angle);
+            }
+            intake = -126;
+            pros::delay(1100);
+            intake = 0;
+            zapper.set_value(true);
+            intake = 126;
+            robot1.followCurve(odom1, last_3Pickup, 5_in);
+            zapper.set_value(false);
+            pros::delay(100);
+            intake = 0;
+
+
+            startTime = pros::millis();
+            while (pros::millis() < startTime + 3000){
+                okapi::QLength realDistToGoal = getDistanceBetweenPoints(odom1->position, GOAL_POS);
+                int flightTimeMS = calcTimeMSForDistance(realDistToGoal);
+                //900ms assumed flight time
+                Cartesian deltaPos = odom1->deltaPositionNormalized();
+                Cartesian deltaPosFudged = deltaPos;
+                //deltaPosFudged.scale(700);
+                deltaPosFudged.scale(flightTimeMS);
+
+                Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1->position.x,
+                                                       deltaPosFudged.y + odom1->position.y);
+                okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
+                                                                     GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
+
+                rpm_target = calcRPMForDistance(distFudged);
+                okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
+                okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+
+                robot1.headingStrafe(0_deg, 0, angle);
+            }
+            intake = -126;
+            pros::delay(1100);
+            intake = 0;
+
+        } else {
+            zapper.set_value(true);
+            intake = 126;
+            robot1.followCurve(odom1, rollerstart_to_3Disks, 4_in);
+            robot1.raw_tank(10.0,0.0,0.0);
+            pros::delay(30);
+            robot1.raw_tank(0.0,0.0,0.0);
+            zapper.set_value(false);
+            pros::delay(20);
+            intake = 0;
+        }
+        rpm_target = 0;
         robot1.raw_tank(0.0,0.0,0.0);
         //robot1.raw_tank(0.0,0.0,0.0);
 //        robot1.goToCharles(odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
@@ -645,31 +746,16 @@ void opcontrol() {
             //deltaPosFudged.scale(700);
             deltaPosFudged.scale(flightTimeMS);
 
-//            printf("realdistTo goal: %f\n", realDistToGoal.convert(inch));
-//            printf("flight time: %d\n", flightTimeMS);
-
             Cartesian currentPosFudged = Cartesian(deltaPosFudged.x + odom1->position.x,
                                                    deltaPosFudged.y + odom1->position.y);
             okapi::QLength distFudged = getDistanceBetweenPoints(currentPosFudged,
                                                                  GOAL_POS); //this is a fudge factor to resolve the interdependency between distance and time of flight
-            //Cartesian targetPoint =
+
             rpm_target = calcRPMForDistance(distFudged);
             okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
             okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
 
-            //printf("distfudged: %f\n",distFudged.convert(okapi::inch));
-//            printf("offsetAngle: %f\n", offsetAngle.convert(okapi::degree));
-//            printf("rpm_target: %f\n", rpm_target);
-//            printf("angle: %f\n", angle.convert(okapi::degree));
-
-            //printf("offset angle: %f\n", offsetAngle.convert(okapi::degree));
-            //printf("currentposfudged: %f, %f\n", currentPosFudged.x.convert(inch), currentPosFudged.y.convert(inch));
-            //printf("angle: %f\n", angle.convert(okapi::degree));
-            //printf("distance: %f\n", realDistToGoal.convert(inch));
-            //printf("time: %f\n", flightTimeMS/1000.0);
             robot1.headingStrafe(-stick1.getHeading(), -magn, angle); //TODO:REENABLE THIS
-            //Polar got_to_goal = Polar(GOAL_POS.x - odom1->position.x, GOAL_POS.y - odom1->position.y);
-            //robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
         } else {
             double turnVal = normRightX();
             if (fabs(turnVal) < 8) {
