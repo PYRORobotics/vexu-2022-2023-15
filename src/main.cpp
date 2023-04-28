@@ -311,6 +311,8 @@ void autonomous() {
         robot1.followCurve( &odom1, stack3_to_start3Pickup, 5_in);
 
         robot1.followCurve(&odom1, start3Pickup_to_end3Pickup, 5_in);
+
+        //robot1.raw_tank(0.0,0.0,0.0);
 //        robot1.goToCharles(&odom1, robotPose(88.5_in, 13_in, 180_deg), 1_in);
 //        robot1.goToCharles(&odom1, robotPose(112_in, 12_in, 180_deg), 1_in);
 //        robot1.goToCharles(&odom1, robotPose(112_in, 8.5_in, 180_deg), 1_in);
@@ -556,6 +558,7 @@ void opcontrol() {
             rpm_target = calcRPMForDistance(distFudged);
             okapi::QAngle offsetAngle = calcAngleForRPM(rpm_target);
             okapi::QAngle angle = getAngleToPoint(currentPosFudged, GOAL_POS) + offsetAngle;
+            Polar got_to_goal = Polar(GOAL_POS.x - odom1.position.x, GOAL_POS.y - odom1.position.y);
             robot1.headingStrafe(stick1.getHeading(), magn, angle + 180_deg);
         } else {
             double turnVal = normRightX();
